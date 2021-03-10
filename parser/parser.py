@@ -48,11 +48,16 @@ def init():
 if __name__ == '__main__':
     init()
     start_time = time.time()
+    last_time = start_time
     check_counter = 0
     while True:
         check()
         check_counter += 1
-        print('Время выполнения: ' + str((time.time() - start_time) / check_counter) + ' секунд')
+        current_time = time.time()
+        print('Время выполнения последней итерации: ' +
+              f'{str((current_time - last_time)):.{10}}' + ' секунд')
         if check_counter % 50 == 0:
-            print('Среднее время выполнения за [' + str(check_counter) + '] итераций: ' + str(
-                (time.time() - start_time) / check_counter) + 'секунд')
+            print('Среднее время выполнения за [' +
+                  str(check_counter) + '] итераций: ' +
+                  f'{str((current_time - start_time) / check_counter):.{10}}' + ' секунд')
+        last_time = current_time
