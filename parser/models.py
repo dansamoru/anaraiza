@@ -18,11 +18,13 @@ class Website:
         }
         return requests.post(self.url_address, data=data)
 
-    def get_positions(self, rows: int, start: int = 0, page: int = 1):
+    def get_positions(self, rows: int = None, start: int = 0, page: int = 1):
+        if rows is None:
+            rows = self.get_count()
         return self.__request__(rows=rows, start=start, page=page).json()
 
     def get_count(self):
-        return self.__request__(rows=0).json()
+        return self.__request__(rows=0).json()['response']['numFound']
 
 
 class Database:
