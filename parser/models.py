@@ -33,6 +33,8 @@ class Database:
         self.connection = sqlite3.connect(database_file)
         self.cursor = self.connection.cursor()
         self.__create__()
+        self.edited = True
+        self.count = self.count()
 
     def __del__(self):
         self.connection.commit()
@@ -55,8 +57,11 @@ class Database:
         self.insert_many(data)
 
     def count(self) -> int:
-        self.cursor.execute('''SELECT COUNT(*) FROM books''')
-        return int(self.cursor.fetchone()[0])
+        if self.edited:
+            self.cursor.execute('''SELECT COUNT(*) FROM books''')
+            self.count = int(self.cursor.fetchone()[0])
+            self.edited = False
+        return self.count
 
     def insert_many(self, array):
         for element in array:
