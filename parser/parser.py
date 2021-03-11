@@ -29,15 +29,8 @@ def check():
         if not success:
             new_positions.clear()
             positions = website.get_positions()
-            for doc in positions['response']['docs']:
-                if database.is_unique(doc['REC_KEY'], doc['EA_ISBN']):
-                    new_positions.add((doc['REC_KEY'], doc['EA_ISBN']))
-
-
-def init():
-    website_count = website.get_count()
-    database_count = database.count()
-    if website_count != database_count:
+            database.insert_many((doc['REC_KEY'], doc['EA_ISBN']) for doc in positions['response']['docs'])
+    elif website_count < database_count:
         positions = website.get_positions(website_count)
         data = []
         for doc in positions['response']['docs']:
@@ -46,7 +39,6 @@ def init():
 
 
 if __name__ == '__main__':
-    init()
     start_time = time.time()
     last_time = start_time
     check_counter = 0

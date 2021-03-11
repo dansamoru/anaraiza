@@ -34,7 +34,7 @@ class Database:
         self.cursor = self.connection.cursor()
         self.__create__()
         self.edited = True
-        self.count = self.count()
+        self.item_amount = self.count()
 
     def __del__(self):
         self.connection.commit()
@@ -49,6 +49,7 @@ class Database:
         except sqlite3.IntegrityError:
             return False
         else:
+            self.edited = True
             return True
 
     def reload(self, data):
@@ -59,9 +60,9 @@ class Database:
     def count(self) -> int:
         if self.edited:
             self.cursor.execute('''SELECT COUNT(*) FROM books''')
-            self.count = int(self.cursor.fetchone()[0])
+            self.item_amount = int(self.cursor.fetchone()[0])
             self.edited = False
-        return self.count
+        return self.item_amount
 
     def insert_many(self, array):
         for element in array:
