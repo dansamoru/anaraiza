@@ -3,14 +3,15 @@ import time
 from models import *
 from settings import *
 
-website = Website(url_address=URL_ADDRESS, search_request=SEARCH_REQUEST)
+website = Website(url_address=BASE_URL + SEARCH_URL,
+                  search_request=SEARCH_REQUEST)
+
 database = Database(database_file=DATABASE_FILE_PATH)
 
-
-def write_new_positions(data):
-    with open(OUTPUT_FILE_PATH, 'a') as output_file:
-        for item in data:
-            output_file.write(item[0] + ' ' + item[1] + '\n')
+writer = OutputWriter(output_file_path=OUTPUT_FILE_PATH,
+                      output_file_mode=OUTPUT_FILE_MODE,
+                      url=BASE_URL + VIEW_URL,
+                      output_find_text=OUTPUT_FIND_TEXT)
 
 
 def check():
@@ -24,12 +25,14 @@ def check():
             if success:
                 if database.is_unique(doc['REC_KEY'], doc['EA_ISBN']):
                     new_positions.add((doc['REC_KEY'], doc['EA_ISBN']))
+                    writer.add_book(doc['EA_ISBN'])
                 else:
                     success = False
         if not success:
             new_positions.clear()
             positions = website.get_positions()
             database.insert_many((doc['REC_KEY'], doc['EA_ISBN']) for doc in positions['response']['docs'])
+        writer.write()
     elif website_count < database_count:
         positions = website.get_positions(website_count)
         data = []
