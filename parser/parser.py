@@ -19,24 +19,23 @@ def check():
     database_count = database.count()
     if website_count > database_count:
         success = True
-        new_positions = set()
-        positions = website.get_positions(website_count - database_count)
-        for doc in positions['response']['docs']:
+        positions = website.get_positions(website_count - database_count)['response']['docs']
+        positions.reverse()
+        for doc in positions:
             if success:
                 if database.is_unique(doc['REC_KEY'], doc['EA_ISBN']):
-                    new_positions.add((doc['REC_KEY'], doc['EA_ISBN']))
                     writer.add_book(doc['EA_ISBN'])
                 else:
                     success = False
         if not success:
-            new_positions.clear()
             positions = website.get_positions()
-            database.insert_many((doc['REC_KEY'], doc['EA_ISBN']) for doc in positions['response']['docs'])
+            database.insert_many((doc['REC_KEY'], doc['EA_ISBN']) for doc in positions['response']['docs'].reverse())
         writer.write()
     elif website_count < database_count:
-        positions = website.get_positions(website_count)
+        positions = website.get_positions(website_count)['response']['docs']
+        positions.reverse()
         data = []
-        for doc in positions['response']['docs']:
+        for doc in positions:
             data.append((doc['REC_KEY'], doc['EA_ISBN']))
         database.reload(data)
 
