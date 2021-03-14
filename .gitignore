@@ -1,6 +1,6 @@
 
-# Created by https://www.toptal.com/developers/gitignore/api/linux,windows,clion+all,visualstudio,python
-# Edit at https://www.toptal.com/developers/gitignore?templates=linux,windows,clion+all,visualstudio,python
+# Created by https://www.toptal.com/developers/gitignore/api/linux,python,windows,clion+all,visualstudio,dotenv
+# Edit at https://www.toptal.com/developers/gitignore?templates=linux,python,windows,clion+all,visualstudio,dotenv
 
 ### CLion+all ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider
@@ -91,6 +91,9 @@ modules.xml
 # Sonarlint plugin
 .idea/sonarlint
 
+### dotenv ###
+.env
+
 ### Linux ###
 *~
 
@@ -123,8 +126,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
 parts/
 sdist/
 var/
@@ -202,6 +203,9 @@ ipython_config.py
 #   install all needed dependencies.
 #Pipfile.lock
 
+# poetry
+#poetry.lock
+
 # PEP 582; used by e.g. github.com/David-OConnor/pyflow
 __pypackages__/
 
@@ -213,8 +217,9 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
-.venv
+# .env
+.env/
+.venv/
 env/
 venv/
 ENV/
@@ -243,8 +248,13 @@ dmypy.json
 # pytype static type analyzer
 .pytype/
 
+# operating system-related files
+*.DS_Store #file properties cache/storage on macOS
+Thumbs.db #thumbnail cache on Windows
+
 # profiling data
 .prof
+
 
 ### Windows ###
 # Windows thumbnail cache files
@@ -298,6 +308,7 @@ mono_crash.*
 [Rr]eleases/
 x64/
 x86/
+[Ww][Ii][Nn]32/
 [Aa][Rr][Mm]/
 [Aa][Rr][Mm]64/
 bld/
@@ -335,6 +346,9 @@ BenchmarkDotNet.Artifacts/
 project.lock.json
 project.fragment.lock.json
 artifacts/
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
 
 # StyleCop
 StyleCopReport.xml
@@ -624,4 +638,7 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 
-# End of https://www.toptal.com/developers/gitignore/api/linux,windows,clion+all,visualstudio,python
+# Fody - auto-generated XML schema
+FodyWeavers.xsd
+
+# End of https://www.toptal.com/developers/gitignore/api/linux,python,windows,clion+all,visualstudio,dotenv
