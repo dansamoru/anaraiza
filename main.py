@@ -1,5 +1,5 @@
 import time
-from parser import Controller
+from parser.parser import Controller
 
 
 if __name__ == '__main__':
