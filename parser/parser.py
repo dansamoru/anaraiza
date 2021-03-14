@@ -1,4 +1,7 @@
-from models import *
+from database.database import Database
+from website.website import Website
+from writer.writer import OutputWriter
+from website.models.proxy import Proxy
 from settings import *
 
 
