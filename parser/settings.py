@@ -7,7 +7,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 #  ---  Website  ---
 BASE_URL = 'http://seoji.nl.go.kr/landingPage'
-SEARCH_URL = '/SearchList.do'
+SEARCH_URL = '/SearchAjax.do'
 VIEW_URL = '?isbn='
 SEARCH_REQUEST = '(연재) 원작자 2021'
 

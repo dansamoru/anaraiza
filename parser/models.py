@@ -15,6 +15,7 @@ class Website:
             'page': page,
             'tSrch_total': self.search_request,
             'fq_select': 'tSrc_total',
+            'sort': 'PUBLISH_PREDATE ASC',
         }
         return requests.post(self.url_address, data=data)
 
@@ -23,8 +24,8 @@ class Website:
             rows = self.get_count()
         return self.__request__(rows=rows, start=start, page=page).json()
 
-    def get_count(self):
-        return self.__request__(rows=0).json()['response']['numFound']
+    def get_count(self) -> int:
+        return int(self.__request__(rows=0).json()['response']['numFound'])
 
 
 class Database:
