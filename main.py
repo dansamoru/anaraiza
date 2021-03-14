@@ -7,7 +7,8 @@ BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 CONFIG_FILE_PATH = os.path.join(BASE_PATH, 'config.ini')
 
 
-def load_env(env_file_path):
+def load_env():
+    env_file_path = os.path.join(BASE_PATH, '.env')
     if os.environ.get('TELEGRAM_BOT_TOKEN') is None or os.environ.get('TELEGRAM_CHAT_ID') is None:
         if os.path.exists(env_file_path):
             dotenv.load_dotenv(env_file_path)
@@ -26,6 +27,6 @@ def load_config(config_file_path):
 
 if __name__ == '__main__':
     config = load_config(CONFIG_FILE_PATH)
-    load_env(os.path.join(BASE_PATH, config['Global']['env_file_path']))
+    load_env()
     controller = controller.Controller(config)
     controller.start()
