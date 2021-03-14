@@ -3,8 +3,11 @@ import time
 from models import *
 from settings import *
 
+proxy = Proxy(proxy_file_path=PROXY_FILE_PATH)
+
 website = Website(url_address=BASE_URL + SEARCH_URL,
-                  search_request=SEARCH_REQUEST)
+                  search_request=SEARCH_REQUEST,
+                  proxy={'http': str(proxy)})
 
 database = Database(database_file=DATABASE_FILE_PATH)
 
