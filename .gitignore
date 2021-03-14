@@ -642,3 +642,10 @@ MigrationBackup/
 FodyWeavers.xsd
 
 # End of https://www.toptal.com/developers/gitignore/api/linux,python,windows,clion+all,visualstudio,dotenv
+
+
+### Database ###
+*.sqlite
+
+### Private settings ###
+*.csv
