@@ -1,7 +1,9 @@
-from controller import controller
-import dotenv
-import os
 import configparser
+import os
+
+import dotenv
+
+from controller import controller
 
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 CONFIG_FILE_PATH = os.path.join(BASE_PATH, 'config.ini')

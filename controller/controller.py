@@ -1,10 +1,10 @@
-import time
 import os
+import time
 
 from database.database import Database
-from website.website import Website
-from website.models.proxy import Proxy
 from telegram.telegram import Telegram
+from website.models.proxy import Proxy
+from website.website import Website
 
 
 class Controller:
