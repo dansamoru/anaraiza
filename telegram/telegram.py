@@ -1,25 +1,16 @@
-from settings import *
-import os
 import requests
 
 
-def write():
-    with open(INPUT_FILE_PATH, 'r') as input_file:
-        text = input_file.read()
+class Telegram:
+    def __init__(self, bot_token: str, chat_id):
+        self.bot_token = bot_token
+        self.chat_id = chat_id
+
+    def write(self, text):
         data = {
-            'chat_id': CHAT_ID,
+            'chat_id': self.chat_id,
             'text': text,
         }
-        url = 'https://api.telegram.org/bot' + BOT_TOKEN + '/'
-        print(requests.post(url + 'sendMessage', data=data).text)
-    with open(INPUT_FILE_PATH, 'wb') as input_file:
-        pass
-
-
-def check() -> bool:
-    return os.path.getsize(INPUT_FILE_PATH) > 0
-
-
-if __name__ == '__main__':
-    if check():
-        write()
+        url = 'https://api.telegram.org/bot' + self.bot_token + '/'
+        if not requests.post(url + 'sendMessage', data=data).json()['ok']:
+            raise ConnectionError('Ошибка отправки в Телеграм')

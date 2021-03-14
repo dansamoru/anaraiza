@@ -1,3 +1,6 @@
+import csv
+
+
 class Proxy:
     def __init__(self, proxy_file_path):
         self.current_proxy = 0
