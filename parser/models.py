@@ -1,11 +1,13 @@
 import requests
 import sqlite3
+import csv
 
 
 class Website:
-    def __init__(self, url_address, search_request):
+    def __init__(self, url_address, search_request, proxy):
         self.url_address = url_address
         self.search_request = search_request
+        self.proxy = proxy
 
     def __request__(self, rows: int, start: int = 0, page: int = 1) -> requests.Response:
         data = {
@@ -17,7 +19,7 @@ class Website:
             'fq_select': 'tSrc_total',
             'sort': 'PUBLISH_PREDATE ASC',
         }
-        return requests.post(self.url_address, data=data)
+        return requests.post(self.url_address, data=data, proxies=self.proxy)
 
     def get_positions(self, rows: int = None, start: int = 0, page: int = 1):
         if rows is None:
@@ -26,6 +28,9 @@ class Website:
 
     def get_count(self) -> int:
         return int(self.__request__(rows=0).json()['response']['numFound'])
+
+    def update_proxy(self, val):
+        self.proxy = val
 
 
 class Database:
@@ -88,3 +93,20 @@ class OutputWriter:
         with open(self.output_file_path, self.output_file_mode) as output_file:
             for element in self.queue:
                 output_file.write(element)
+
+
+class Proxy:
+    def __init__(self, proxy_file_path):
+        self.current_proxy = 0
+
+        with open(proxy_file_path, 'r') as proxy_file:
+            self.proxies = []
+            proxy_reader = csv.reader(proxy_file, delimiter=';')
+            for row in proxy_reader:
+                self.proxies.append('http://' + row[0] + ':' + row[1] + '@' + row[2] + ':' + row[3])
+
+    def __str__(self):
+        return self.proxies[self.current_proxy]
+
+    def change(self):
+        self.current_proxy = (self.current_proxy + 1) % len(self.proxies)

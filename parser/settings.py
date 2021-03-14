@@ -20,3 +20,7 @@ DATABASE_FILE_PATH = os.path.join(BASE_DIR, 'database.sqlite')
 OUTPUT_FILE_PATH = os.path.join(BASE_DIR, 'output.txt')
 OUTPUT_FILE_MODE = 'a'
 OUTPUT_FIND_TEXT = 'Найден новый файл! '
+
+
+#  ---  Proxy  ---
+PROXY_FILE_PATH = os.path.join(BASE_DIR, 'proxy.csv')
