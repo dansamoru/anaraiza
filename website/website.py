@@ -54,14 +54,12 @@ class Website:
                 #     raise ConnectionResetError('Ошибка подключения к сайту')
                 error_time = None
                 return response
-            except requests.exceptions.ProxyError:
-                self.proxy.next()
-            except ConnectionError:
-                if error_time is not None:
-                    if error_time - time.time() >= 3600:
-                        raise ConnectionError("Соединение прервано")
-                else:
+            except (requests.exceptions.ConnectionError, ConnectionError):
+                if error_time is None:
                     error_time = time.time()
+                if error_time is not None:
+                    if error_time - time.time() >= 300:
+                        self.proxy.next()
 
     def get_positions(self, rows: int = None, start: int = 0, page: int = 1):
         if rows is None:
