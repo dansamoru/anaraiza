@@ -32,6 +32,7 @@ class Controller:
             for doc in positions:
                 if self.database.is_unique(doc['REC_KEY'], doc['EA_ISBN']):
                     self.telegram.write('Найден новый элемент: ' + self.view_url + doc['EA_ISBN'])
+                    print(time.strftime('[%x %X] ', time.localtime()) + 'Обнаружен новый элемент')
 
     def start(self):
         start_time = time.time()
