@@ -43,7 +43,6 @@ class Website:
             'page': page,
             'tSrch_total': self.search_request,
             'fq_select': 'tSrc_total',
-            'sort': 'PUBLISH_PREDATE ASC',
         }
         while True:
             try:
