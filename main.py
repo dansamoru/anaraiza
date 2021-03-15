@@ -21,7 +21,7 @@ def load_env():
 def load_config(config_file_path):
     if os.path.exists(config_file_path):
         input_config = configparser.ConfigParser()
-        input_config.read(config_file_path)
+        input_config.read(config_file_path, encoding='utf-8')
         return input_config
     else:
         raise FileNotFoundError('Файл настроек не найден')
