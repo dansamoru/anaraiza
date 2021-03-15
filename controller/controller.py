@@ -48,4 +48,6 @@ class Controller:
                 print(time.strftime('[%x %X] ', time.localtime()) + 'Среднее время выполнения за [' +
                       str(update_counter) + '] итераций: ' +
                       f'{str((current_time - start_time) / update_counter):.{10}}' + ' секунд')
+            if update_counter % 50000 == 0:
+                self.database.commit()
             last_time = current_time
