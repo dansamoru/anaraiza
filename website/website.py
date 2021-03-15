@@ -54,7 +54,9 @@ class Website:
                 #     raise ConnectionResetError('Ошибка подключения к сайту')
                 error_time = None
                 return response
-            except (requests.exceptions.ConnectionError, ConnectionError):
+            except requests.exceptions.ConnectionError:
+                self.proxy.next()
+            except ConnectionError:
                 if error_time is None:
                     error_time = time.time()
                 if error_time is not None:
