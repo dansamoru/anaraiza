@@ -18,7 +18,7 @@ class Proxy:
         return self.proxies[self.current_proxy][0]
 
     def next(self):
-        print(time.strftime('[%X] ', time.localtime()) + '!   Запрос на изменение прокси   !')
+        print(time.strftime('[%x %X] ', time.localtime()) + 'Получен запрос на изменение прокси')
         self.proxies[self.current_proxy][1] = time.time()
         enter_proxy = self.current_proxy
         self.current_proxy = (self.current_proxy + 1) % len(self.proxies)
@@ -27,6 +27,8 @@ class Proxy:
                 raise RuntimeError('Все прокси израсходованы. Добавьте новых или подождите')
             else:
                 self.current_proxy = (self.current_proxy + 1) % len(self.proxies)
+        print(time.strftime('[%x %X] ', time.localtime()) + 'Установлен новый прокси: [' + str(
+            self.current_proxy) + '] ' + str(self))
 
 
 class Website:
