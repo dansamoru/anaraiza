@@ -24,7 +24,7 @@ class Proxy:
         self.current_proxy = (self.current_proxy + 1) % len(self.proxies)
         while time.time() - self.proxies[self.current_proxy][1] < 60:
             if self.current_proxy == enter_proxy:
-                raise ConnectionError('Все прокси израсходованы. Добавьте новых или подождите')
+                raise RuntimeError('Все прокси израсходованы. Добавьте новых или подождите')
             else:
                 self.current_proxy = (self.current_proxy + 1) % len(self.proxies)
 
@@ -45,13 +45,21 @@ class Website:
             'fq_select': 'tSrc_total',
         }
         while True:
+            error_time = None
             try:
                 response = requests.post(self.url_address, data=data, proxies={'http:': str(self.proxy)})
                 # if not response.ok:
                 #     raise ConnectionResetError('Ошибка подключения к сайту')
+                error_time = None
                 return response
             except requests.exceptions.ProxyError:
                 self.proxy.next()
+            except ConnectionError:
+                if error_time is not None:
+                    if error_time - time.time() >= 3600:
+                        raise ConnectionError("Соединение прервано")
+                else:
+                    error_time = time.time()
 
     def get_positions(self, rows: int = None, start: int = 0, page: int = 1):
         if rows is None:
