@@ -37,15 +37,15 @@ class Controller:
         start_time = time.time()
         last_time = start_time
         update_counter = 0
-        print(time.strftime('Start at: %X %x', time.localtime()))
+        print(time.strftime('[%x %X] ', time.localtime()) + 'Начало выполнения')
         while True:
             self.update()
             update_counter += 1
             current_time = time.time()
-            print(time.strftime('[%X] ', time.localtime()) + 'Время выполнения последней итерации: ' +
+            print(time.strftime('[%x %X] ', time.localtime()) + 'Время выполнения последней итерации: ' +
                   f'{str((current_time - last_time)):.{10}}' + ' секунд')
             if update_counter % 50 == 0:
-                print(time.strftime('[%X] ', time.localtime()) + 'Среднее время выполнения за [' +
+                print(time.strftime('[%x %X] ', time.localtime()) + 'Среднее время выполнения за [' +
                       str(update_counter) + '] итераций: ' +
                       f'{str((current_time - start_time) / update_counter):.{10}}' + ' секунд')
             last_time = current_time
