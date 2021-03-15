@@ -39,7 +39,11 @@ class Controller:
         update_counter = 0
         print(time.strftime('[%x %X] ', time.localtime()) + 'Начало выполнения')
         while True:
-            self.update()
+            try:
+                self.update()
+            except BaseException:
+                self.telegram.write('Поздравляю! Случилась ошибка 🥰')
+                raise BaseException('Хз чо, ищи')
             update_counter += 1
             current_time = time.time()
             print(time.strftime('[%x %X] ', time.localtime()) + 'Время выполнения последней итерации: ' +
