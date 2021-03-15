@@ -11,7 +11,7 @@ class Database:
         self.item_amount = self.count()
 
     def __del__(self):
-        self.connection.commit()
+        self.commit()
         self.connection.close()
 
     def __create__(self):
@@ -25,6 +25,9 @@ class Database:
         else:
             self.edited = True
             return True
+
+    def commit(self):
+        self.connection.commit()
 
     def reload(self, data):
         self.cursor.execute('''DROP TABLE books''')
