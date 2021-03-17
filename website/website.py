@@ -1,7 +1,7 @@
 import csv
 import time
-
 import requests
+from json.decoder import JSONDecodeError
 
 
 class Proxy:
@@ -50,10 +50,9 @@ class Website:
             error_time = None
             try:
                 response = requests.post(self.url_address, data=data, proxies={'http:': str(self.proxy)})
-                # if not response.ok:
-                #     raise ConnectionResetError('Ошибка подключения к сайту')
                 error_time = None
-                return response
+                if response.ok:
+                    return response
             except requests.exceptions.ConnectionError:
                 self.proxy.next()
             except ConnectionError:
@@ -66,11 +65,20 @@ class Website:
     def get_positions(self, rows: int = None, start: int = 0, page: int = 1):
         if rows is None:
             rows = self.get_count()
-        pos = self.__request__(rows=rows, start=start, page=page).json()
-        return pos
+        while True:
+            try:
+                result = self.__request__(rows=rows, start=start, page=page).json()
+                return result
+            except JSONDecodeError:
+                pass
 
     def get_count(self) -> int:
-        return int(self.__request__(rows=0).json()['response']['numFound'])
+        while True:
+            try:
+                result = int(self.__request__(rows=0).json()['response']['numFound'])
+                return result
+            except JSONDecodeError:
+                pass
 
     def update_proxy(self, val):
         self.proxy = val
