@@ -1,5 +1,6 @@
 import os
 import time
+import traceback
 
 from database.database import Database
 from telegram.telegram import Telegram
@@ -42,8 +43,9 @@ class Controller:
         while True:
             try:
                 self.update()
-            except BaseException as exception:
-                self.telegram.write('Поздравляю! Случилась ошибка 🥰')
+            except Exception as exception:
+                self.telegram.write(
+                    'Поздравляю! Случилась ошибка 🥰\n\n⚠ : ' + str(traceback.format_exc()))
                 raise exception
             update_counter += 1
             current_time = time.time()
