@@ -49,7 +49,7 @@ class Website:
         while True:
             error_time = None
             try:
-                response = requests.post(self.url_address, data=data, proxies={'http:': str(self.proxy)})
+                response = requests.post(self.url_address, data=data, proxies={'http': str(self.proxy)})
                 error_time = None
                 if response.ok:
                     return response
