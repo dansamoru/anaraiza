@@ -33,13 +33,13 @@ class Controller:
             for doc in positions:
                 if self.database.is_unique(doc['REC_KEY'], doc['EA_ISBN']):
                     self.telegram.write('Найден новый элемент: ' + self.view_url + doc['EA_ISBN'])
-                    print(time.strftime('[%x %X] ', time.localtime()) + 'Обнаружен новый элемент')
+                    # print(time.strftime('[%x %X] ', time.localtime()) + 'Обнаружен новый элемент')
 
     def start(self):
-        start_time = time.time()
-        last_time = start_time
+        # start_time = time.time()
+        # last_time = start_time
         update_counter = 0
-        print(time.strftime('[%x %X] ', time.localtime()) + 'Начало выполнения')
+        # print(time.strftime('[%x %X] ', time.localtime()) + 'Начало выполнения')
         while True:
             try:
                 self.update()
@@ -48,13 +48,14 @@ class Controller:
                     'Поздравляю! Случилась ошибка 🥰\n\n⚠ : ' + str(traceback.format_exc()))
                 raise exception
             update_counter += 1
-            current_time = time.time()
-            print(time.strftime('[%x %X] ', time.localtime()) + 'Время выполнения последней итерации: ' +
-                  f'{str((current_time - last_time)):.{10}}' + ' секунд')
-            if update_counter % 50 == 0:
-                print(time.strftime('[%x %X] ', time.localtime()) + 'Среднее время выполнения за [' +
-                      str(update_counter) + '] итераций: ' +
-                      f'{str((current_time - start_time) / update_counter):.{10}}' + ' секунд')
+            # current_time = time.time()
+            # print(time.strftime('[%x %X] ', time.localtime()) + 'Время выполнения последней итерации: ' +
+            #       f'{str((current_time - last_time)):.{10}}' + ' секунд')
+            # if update_counter % 50 == 0:
+            #     print(time.strftime('[%x %X] ', time.localtime()) + 'Среднее время выполнения за [' +
+            #           str(update_counter) + '] итераций: ' +
+            #           f'{str((current_time - start_time) / update_counter):.{10}}' + ' секунд')
             if update_counter % 50000 == 0:
                 self.database.commit()
-            last_time = current_time
+                update_counter %= 50000
+            # last_time = current_time
