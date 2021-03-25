@@ -9,14 +9,14 @@ from modules.telegram import Telegram
 
 class Controller:
     def __init__(self, config):
-        self.website = Website(url_address=config['Website']['BASE_URL'] + config['Website']['SEARCH_URL'],
-                               search_request=config['Website']['SEARCH_REQUEST'],
+        self.website = Website(config['Website'],
                                proxy_file_path=config['Proxy']['PROXY_FILE_PATH'])
 
-        self.database = Database(database_file=config['Database']['DATABASE_FILE_PATH'])
+        self.database = Database(config['Database'])
 
         self.telegram = Telegram(bot_token=os.environ.get('TELEGRAM_BOT_TOKEN'),
                                  chat_id=os.environ.get('TELEGRAM_CHAT_ID'))
+
         self.view_url = config['Website']['base_url'] + config['Website']['view_url']
 
     def update(self):

@@ -5,9 +5,9 @@ from modules.proxy import Proxy
 
 
 class Website:
-    def __init__(self, url_address, search_request, proxy_file_path):
-        self.url_address = url_address
-        self.search_request = search_request
+    def __init__(self, config, proxy_file_path):
+        self.url_address = config['URL_ADDRESS']
+        self.search_request = config['SEARCH_REQUEST']
         self.proxy = Proxy(proxy_file_path=proxy_file_path)
 
     def __request__(self, rows: int, start: int = 0, page: int = 1) -> requests.Response:
