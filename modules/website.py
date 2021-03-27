@@ -1,6 +1,8 @@
 import time
-import requests
 from json.decoder import JSONDecodeError
+
+import requests
+
 from modules.proxy import Proxy
 
 
