@@ -1,10 +1,9 @@
 import os
-import time
 import traceback
 
-from modules.website import Website
 from modules.database import Database
 from modules.telegram import Telegram
+from modules.website import Website
 
 
 class Controller:
