@@ -3,7 +3,7 @@ import os
 
 import dotenv
 
-from controller import controller
+from modules import controller
 
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 CONFIG_FILE_PATH = os.path.join(BASE_PATH, 'config.ini')

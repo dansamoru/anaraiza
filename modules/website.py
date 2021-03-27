@@ -1,40 +1,15 @@
-import csv
 import time
-import requests
 from json.decoder import JSONDecodeError
 
+import requests
 
-class Proxy:
-    def __init__(self, proxy_file_path):
-        self.current_proxy = 1
-
-        with open(proxy_file_path, 'r') as proxy_file:
-            self.proxies = []
-            proxy_reader = csv.reader(proxy_file, delimiter=';')
-            for row in proxy_reader:
-                self.proxies.append(['http://' + row[0] + ':' + row[1] + '@' + row[2] + ':' + row[3], 0.0])
-
-    def __str__(self):
-        return self.proxies[self.current_proxy][0]
-
-    def next(self):
-        print(time.strftime('[%x %X] ', time.localtime()) + 'Получен запрос на изменение прокси')
-        self.proxies[self.current_proxy][1] = time.time()
-        enter_proxy = self.current_proxy
-        self.current_proxy = (self.current_proxy + 1) % len(self.proxies)
-        while time.time() - self.proxies[self.current_proxy][1] < 60:
-            if self.current_proxy == enter_proxy:
-                raise RuntimeError('Все прокси израсходованы. Добавьте новых или подождите')
-            else:
-                self.current_proxy = (self.current_proxy + 1) % len(self.proxies)
-        print(time.strftime('[%x %X] ', time.localtime()) + 'Установлен новый прокси: [' + str(
-            self.current_proxy) + '] ' + str(self))
+from modules.proxy import Proxy
 
 
 class Website:
-    def __init__(self, url_address, search_request, proxy_file_path):
-        self.url_address = url_address
-        self.search_request = search_request
+    def __init__(self, config, proxy_file_path):
+        self.url_address = config['URL_ADDRESS']
+        self.search_request = config['SEARCH_REQUEST']
         self.proxy = Proxy(proxy_file_path=proxy_file_path)
 
     def __request__(self, rows: int, start: int = 0, page: int = 1) -> requests.Response:
@@ -49,7 +24,7 @@ class Website:
         while True:
             error_time = None
             try:
-                response = requests.post(self.url_address, data=data, proxies={'http:': str(self.proxy)})
+                response = requests.post(self.url_address, data=data, proxies={'http': str(self.proxy)})
                 error_time = None
                 if response.ok:
                     return response
