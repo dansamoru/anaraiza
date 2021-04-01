@@ -37,7 +37,7 @@ class Registrar:
 
     def __authorize__(self):
         response = self.__post_request__('users/login/',
-                                         {'user': os.getenv('REMANGS_USERNAME'),
+                                         {'user': os.getenv('REMANGA_USERNAME'),
                                           'password': os.getenv('REMANGA_PASSWORD')}).json()
         self.__token__ = response['content']['access_token']
         self.__user__ = response['content']
@@ -78,7 +78,9 @@ class Registrar:
                 file.write(str(data) + '\n')
 
     def __translate_name__(self, ko_name: str, lang: str):
-        ko_name.replace('(연재)', '').replace('(연재)', '').replace('[만화]', '')
+        ko_name = ko_name.replace('(연재)', '').replace('[만화]', '').replace('[코믹]', '').replace('(e-book)', '').removeprefix(' ').removesuffix(' ')
+        if lang == 'ko':
+            return ko_name
         url = 'https://translate.api.cloud.yandex.net/translate/v2/translate'
         headers = {
             'Content-Type': 'application/json',
@@ -100,6 +102,7 @@ class Registrar:
     def book_registration(self, name, url) -> bool:
         with open(os.path.join(os.path.dirname(os.path.curdir), 'static', 'plug.jpg'), 'rb') as f:
             cover = f.read()
+        name = self.__translate_name__(name, 'ko')
         data = {
             'csrfmiddlewaretoken': self.__get_csrf__(),
             'en_name': self.__translate_name__(name, 'en'),
