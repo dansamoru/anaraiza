@@ -4,6 +4,7 @@ import traceback
 from modules.database import Database
 from modules.telegram import Telegram
 from modules.website import Website
+from modules.registrar import Registrar
 
 
 class Controller:
@@ -16,7 +17,14 @@ class Controller:
         self.telegram = Telegram(bot_token=os.environ.get('TELEGRAM_BOT_TOKEN'),
                                  chat_id=os.environ.get('TELEGRAM_CHAT_ID'))
 
+        self.registrar = Registrar(config['Remanga'])
+
         self.view_url = config['Website']['base_url'] + config['Website']['view_url']
+
+    def book_registration(self, url, name):
+        self.telegram.write('Найден новый элемент: \n' + name + '\n\n' + url)
+        if self.registrar.book_registration(name, url):
+            self.telegram.write('Зарегистрирован новый элемент: \n' + name + '\n\n' + url)
 
     def update(self):
         website_count = self.website.get_count()
@@ -31,7 +39,7 @@ class Controller:
             positions = self.website.get_positions(website_count)['response']['docs']
             for doc in positions:
                 if self.database.is_unique(doc['REC_KEY'], doc['EA_ISBN']):
-                    self.telegram.write('Найден новый элемент: ' + self.view_url + doc['EA_ISBN'])
+                    self.book_registration(self.view_url + doc['EA_ISBN'], doc['TITLE'])
                     # print(time.strftime('[%x %X] ', time.localtime()) + 'Обнаружен новый элемент')
 
     def start(self):
