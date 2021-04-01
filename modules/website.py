@@ -8,7 +8,7 @@ from modules.proxy import Proxy
 
 class Website:
     def __init__(self, config, proxy_file_path):
-        self.url_address = config['URL_ADDRESS']
+        self.url_address = config['BASE_URL']
         self.search_request = config['SEARCH_REQUEST']
         self.proxy = Proxy(proxy_file_path=proxy_file_path)
 
