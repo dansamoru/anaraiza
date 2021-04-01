@@ -98,7 +98,7 @@ class Registrar:
             raise ValueError('Ошибка подключения к переводчику')
 
     def book_registration(self, name, url) -> bool:
-        with open(os.path.dirname(os.path.curdir).join('static').join('plug.jpg'), 'rb') as f:
+        with open(os.path.join(os.path.dirname(os.path.curdir), 'static', 'plug.jpg'), 'rb') as f:
             cover = f.read()
         data = {
             'csrfmiddlewaretoken': self.__get_csrf__(),
