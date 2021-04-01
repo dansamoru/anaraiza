@@ -9,6 +9,7 @@ from modules.proxy import Proxy
 class Website:
     def __init__(self, config, proxy_file_path):
         self.url_address = config['BASE_URL']
+        self.search_url = config['SEARCH_URL']
         self.search_request = config['SEARCH_REQUEST']
         self.proxy = Proxy(proxy_file_path=proxy_file_path)
 
@@ -24,7 +25,7 @@ class Website:
         while True:
             error_time = None
             try:
-                response = requests.post(self.url_address, data=data, proxies={'http': str(self.proxy)})
+                response = requests.post(self.url_address + self.search_url, data=data, proxies={'http': str(self.proxy)})
                 error_time = None
                 if response.ok:
                     return response
@@ -40,20 +41,26 @@ class Website:
     def get_positions(self, rows: int = None, start: int = 0, page: int = 1):
         if rows is None:
             rows = self.get_count()
+        error_counter = 0
         while True:
             try:
                 result = self.__request__(rows=rows, start=start, page=page).json()
                 return result
             except JSONDecodeError:
-                pass
+                error_counter += 1
+                if error_counter >= 10:
+                    raise ConnectionError('Ошибка подключения к seoji')
 
     def get_count(self) -> int:
+        error_counter = 0
         while True:
             try:
-                result = int(self.__request__(rows=0).json()['response']['numFound'])
-                return result
+                result = self.__request__(rows=0)
+                return int(result.json()['response']['numFound'])
             except JSONDecodeError:
-                pass
+                error_counter += 1
+                if error_counter >= 10:
+                    raise ConnectionError('Ошибка подключения к seoji')
 
     def update_proxy(self, val):
         self.proxy = val
