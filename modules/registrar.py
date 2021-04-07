@@ -78,7 +78,8 @@ class Registrar:
                 file.write(str(data) + '\n')
 
     def __translate_name__(self, ko_name: str, lang: str):
-        ko_name = ko_name.replace('(연재)', '').replace('[만화]', '').replace('[코믹]', '').replace('(e-book)', '').removeprefix(' ').removesuffix(' ')
+        ko_name = ko_name.replace('(연재)', '').replace('[만화]', '').replace('[코믹]', '').replace('(e-book)', '').replace('[연재]', '').replace('[웹툰]', '')
+        ko_name = ko_name.removeprefix(' ').removesuffix(' ')
         if lang == 'ko':
             return ko_name
         url = 'https://translate.api.cloud.yandex.net/translate/v2/translate'
