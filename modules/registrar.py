@@ -6,6 +6,8 @@ from bs4 import BeautifulSoup
 
 
 class Registrar:
+    name_filters = ('(연재)', '[연재]', '[만화]', '[코믹]', '(e-book)', '[웹툰]')
+
     def __init__(self, config):
         self.api_url = config['api_url']
         self.__token__ = None
@@ -79,8 +81,8 @@ class Registrar:
             return True
 
     def __translate_name__(self, ko_name: str, lang: str):
-        ko_name = ko_name.replace('(연재)', '').replace('[만화]', '').replace('[코믹]', '').replace('(e-book)', '').replace(
-            '[연재]', '').replace('[웹툰]', '')
+        for name_filter in self.name_filters:
+            ko_name = ko_name.replace(name_filter, '')
         ko_name = ko_name.removeprefix(' ').removesuffix(' ')
         if lang == 'ko':
             return ko_name
