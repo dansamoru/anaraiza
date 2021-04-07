@@ -32,7 +32,7 @@ class Registrar:
                           'Chrome/88.0.4324.111 YaBrowser/21.2.1.94 (beta) Yowser/2.5 Safari/537.36',
         }
         response = requests.get(self.api_url + url, headers=headers, data=data)
-        if response.status_code == 401:
+        if response.status_code == 401 or response.status_code == 403:
             self.__authorize__()
             return self.__get_request__(url, data)
         return response
@@ -56,6 +56,9 @@ class Registrar:
                 'None', 'null'),
         }
         response: requests.Response = requests.get('https://remanga.org/panel/add-titles/', headers=headers)
+        if response.status_code == 401 or response.status_code == 403:
+            self.__authorize__()
+            return self.__get_csrf__()
         if response.ok:
             soup = BeautifulSoup(response.text, 'html.parser')
             csrf_token = soup.find('input', attrs={'name': 'csrfmiddlewaretoken'})['value']
@@ -76,6 +79,9 @@ class Registrar:
             file.write(str(data) + '\n')
         if os.getenv('DEBUG') is False:
             response = requests.post('https://remanga.org/panel/add-titles/', headers=headers, data=data)
+            if response.status_code == 401 or response.status_code == 403:
+                self.__authorize__()
+                return self.__add_title__(data)
             return response.ok
         else:
             return True
