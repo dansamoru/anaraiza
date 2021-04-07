@@ -70,12 +70,13 @@ class Registrar:
                                                                                                                  'true').replace(
                 'None', 'null'),
         }
+        with open('registrar.txt', 'a') as file:
+            file.write(str(data) + '\n')
         if os.getenv('DEBUG') is False:
             response = requests.post('https://remanga.org/panel/add-titles/', headers=headers, data=data)
             return response.ok
         else:
-            with open('registrar.txt', 'a') as file:
-                file.write(str(data) + '\n')
+            return True
 
     def __translate_name__(self, ko_name: str, lang: str):
         ko_name = ko_name.replace('(연재)', '').replace('[만화]', '').replace('[코믹]', '').replace('(e-book)', '').replace('[연재]', '').replace('[웹툰]', '')
