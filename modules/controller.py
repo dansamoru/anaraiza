@@ -2,9 +2,9 @@ import os
 import traceback
 
 from modules.database import Database
+from modules.registrar import Registrar
 from modules.telegram import Telegram
 from modules.website import Website
-from modules.registrar import Registrar
 
 
 class Controller:
@@ -40,14 +40,10 @@ class Controller:
             for doc in positions:
                 if self.database.is_unique(doc['REC_KEY'], doc['EA_ISBN']):
                     self.book_registration(self.view_url + doc['EA_ISBN'], doc['TITLE'])
-                    # print(time.strftime('[%x %X] ', time.localtime()) + 'Обнаружен новый элемент')
             self.database.commit()
 
     def start(self):
-        # start_time = time.time()
-        # last_time = start_time
         update_counter = 0
-        # print(time.strftime('[%x %X] ', time.localtime()) + 'Начало выполнения')
         while True:
             try:
                 self.update()
@@ -56,14 +52,3 @@ class Controller:
                     'Поздравляю! Случилась ошибка 🥰\n\n⚠ : ' + str(traceback.format_exc()))
                 raise exception
             update_counter += 1
-            # current_time = time.time()
-            # print(time.strftime('[%x %X] ', time.localtime()) + 'Время выполнения последней итерации: ' +
-            #       f'{str((current_time - last_time)):.{10}}' + ' секунд')
-            # if update_counter % 50 == 0:
-            #     print(time.strftime('[%x %X] ', time.localtime()) + 'Среднее время выполнения за [' +
-            #           str(update_counter) + '] итераций: ' +
-            #           f'{str((current_time - start_time) / update_counter):.{10}}' + ' секунд')
-            if update_counter % 50000 == 0:
-                self.database.commit()
-                update_counter %= 50000
-            # last_time = current_time
