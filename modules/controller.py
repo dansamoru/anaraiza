@@ -41,6 +41,7 @@ class Controller:
                 if self.database.is_unique(doc['REC_KEY'], doc['EA_ISBN']):
                     self.book_registration(self.view_url + doc['EA_ISBN'], doc['TITLE'])
                     # print(time.strftime('[%x %X] ', time.localtime()) + 'Обнаружен новый элемент')
+            self.database.commit()
 
     def start(self):
         # start_time = time.time()
