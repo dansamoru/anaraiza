@@ -6,7 +6,7 @@ class Proxy:
     def __init__(self, proxy_file_path):
         self.current_proxy = 1
 
-        with open(proxy_file_path, 'r') as proxy_file:
+        with open(proxy_file_path, 'r', encoding='utf-8') as proxy_file:
             self.proxies = []
             proxy_reader = csv.reader(proxy_file, delimiter=';')
             for row in proxy_reader:
