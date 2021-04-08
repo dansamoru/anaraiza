@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 
 import requests
 from bs4 import BeautifulSoup
@@ -89,7 +90,11 @@ class Registrar:
     def __translate_name__(self, ko_name: str, lang: str):
         for name_filter in self.name_filters:
             ko_name = ko_name.replace(name_filter, '')
-        ko_name = ko_name.removeprefix(' ').removesuffix(' ')
+        if sys.version_info.major == 3 and sys.version_info.minor >= 9:
+            previous_name = ko_name
+            while previous_name != ko_name:
+                previous_name = ko_name
+                ko_name = ko_name.removeprefix(' ').removesuffix(' ')
         if lang == 'ko':
             return ko_name
         url = 'https://translate.api.cloud.yandex.net/translate/v2/translate'
@@ -111,7 +116,7 @@ class Registrar:
             raise ValueError('Ошибка подключения к переводчику')
 
     def book_registration(self, name, url) -> bool:
-        with open(os.path.join(os.path.dirname(os.path.curdir), 'static', 'plug.jpg'), 'rb', encoding='utf-8') as f:
+        with open(os.path.join(os.path.dirname(os.path.curdir), 'static', 'plug.jpg'), 'rb') as f:
             cover = f.read()
         name = self.__translate_name__(name, 'ko')
         data = {
