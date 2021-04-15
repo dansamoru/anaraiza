@@ -80,7 +80,7 @@ class Registrar:
         with open('registrar.txt', 'a', encoding='utf-8') as file:
             file.write(str(data) + '\n')
         if os.getenv('DEBUG') == 'False':
-            response = requests.post('https://remanga.org/panel/add-titles/', headers=headers, files=files)
+            response = requests.post('https://remanga.org/panel/add-titles/', headers=headers, data=data, files=files)
             if response.status_code == 401 or response.status_code == 403:
                 self.__authorize__()
                 return self.__add_title__(data)
