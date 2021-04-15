@@ -24,7 +24,9 @@ class Controller:
     def book_registration(self, url, name):
         self.telegram.write('Найден новый элемент: \n' + name + '\n\n' + url)
         if self.registrar.book_registration(name, url):
-            self.telegram.write('Зарегистрирован новый элемент: \n' + name + '\n\n' + url)
+            self.telegram.write('Зарегистрирован новый элемент 😎: \n' + name + '\n\n' + url)
+        else:
+            self.telegram.write('Ошибка регистрации 🤫: \n' + name + '\n\n' + url)
 
     def update(self):
         website_count = self.website.get_count()
