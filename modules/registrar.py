@@ -76,10 +76,11 @@ class Registrar:
                                                                                                                  'true').replace(
                 'None', 'null'),
         }
+        files = {'cover': open(os.path.join(os.path.dirname(os.path.curdir), 'static', 'plug.jpg'), 'rb')}
         with open('registrar.txt', 'a', encoding='utf-8') as file:
             file.write(str(data) + '\n')
-        if os.getenv('DEBUG') is False:
-            response = requests.post('https://remanga.org/panel/add-titles/', headers=headers, data=data)
+        if os.getenv('DEBUG') == 'False':
+            response = requests.post('https://remanga.org/panel/add-titles/', headers=headers, files=files)
             if response.status_code == 401 or response.status_code == 403:
                 self.__authorize__()
                 return self.__add_title__(data)
@@ -116,8 +117,6 @@ class Registrar:
             raise ValueError('Ошибка подключения к переводчику')
 
     def book_registration(self, name, url) -> bool:
-        with open(os.path.join(os.path.dirname(os.path.curdir), 'static', 'plug.jpg'), 'rb') as f:
-            cover = f.read()
         name = self.__translate_name__(name, 'ko')
         data = {
             'csrfmiddlewaretoken': self.__get_csrf__(),
@@ -135,7 +134,6 @@ class Registrar:
             'mangachan_link': '',
             'original_link': url,
             'anlate_link': '',
-            'cover': cover,
             'readmanga_link': '',
             'user_message': '',
         }
