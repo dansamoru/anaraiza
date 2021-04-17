@@ -45,12 +45,12 @@ class Controller:
             self.database.commit()
 
     def start(self):
-        update_counter = 0
         while True:
             try:
                 self.update()
             except Exception as exception:
+                with open('error.txt', 'w') as error_file:
+                    error_file.write(traceback.format_exc())
                 self.telegram.write(
-                    'Поздравляю! Случилась ошибка 🥰\n\n⚠ : ' + str(traceback.format_exc()))
+                    'Поздравляю! Случилась ошибка 🥰\n\n⚠ : ' + str(exception))
                 raise exception
-            update_counter += 1
