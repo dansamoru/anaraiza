@@ -7,6 +7,8 @@ class Telegram:
         self.chat_id = chat_id
 
     def write(self, text):
+        #  TODO: Разделить потоки вывода об ошибках в разные каналы
+        #  TODO: Цикл отправки чтоб не падало
         data = {
             'chat_id': self.chat_id,
             'text': text,
