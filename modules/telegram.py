@@ -1,3 +1,5 @@
+import os
+
 import requests
 
 
@@ -6,11 +8,12 @@ class Telegram:
         self.bot_token = bot_token
         self.chat_id = chat_id
 
-    def write(self, text):
-        #  TODO: Разделить потоки вывода об ошибках в разные каналы
+    def write(self, text, tag):
         #  TODO: Цикл отправки чтоб не падало
+        if os.environ.get('DEBUG') == 'True':
+            tag = 'debug-all'
         data = {
-            'chat_id': self.chat_id,
+            'chat_id': self.chat_id[tag],
             'text': text,
         }
         url = 'https://api.telegram.org/bot' + self.bot_token + '/'
