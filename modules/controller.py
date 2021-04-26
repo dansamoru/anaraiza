@@ -47,6 +47,7 @@ class Controller:
     def start(self):
         while True:
             try:
+                #  TODO: Первый запуск без регистрации
                 self.update()
             except Exception as exception:
                 with open('error.txt', 'w') as error_file:
