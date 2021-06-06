@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 
 
 class Registrar:
-    name_filters = ('(연재)', '[연재]', '[만화]', '[코믹]', '(e-book)', '[웹툰]')
+    name_filters = ('(연재)', '[연재]', '[만화]', '[코믹]', '(e-book)', '[웹툰]', '[웹툰판]', '(개정판)')
 
     def __init__(self, config):
         self.api_url = config['api_url']
