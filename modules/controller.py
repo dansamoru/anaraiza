@@ -6,6 +6,8 @@ from modules.registrar import Registrar
 from modules.telegram import Telegram
 from modules.website import Website
 
+BASE_PATH = os.path.dirname(os.path.abspath(__file__))
+
 
 class Controller:
     def __init__(self, config):
@@ -55,10 +57,13 @@ class Controller:
         while True:
             try:
                 self.update(is_start)
+                if is_start and os.environ.get('DEBUG') == 'True':
+                    self.telegram.write('Module (re)started', tag='prod_dev') 
                 is_start = False
             except Exception as exception:
                 with open('error.txt', 'w') as error_file:
                     error_file.write(traceback.format_exc())
                 self.telegram.write(
                     'Поздравляю! Случилась ошибка 🥰\n\n⚠ : ' + str(exception), 'prod-dev')
+                os.path.join(BASE_PATH, 'start.sh')
                 raise exception
