@@ -48,3 +48,7 @@ class Database:
 
     def is_unique(self, key: int, isbn: int) -> bool:
         return self.__insert__(key=key, isbn=isbn)
+
+    def remove(self, key: int):
+        self.cursor.execute('''DELETE FROM BOOKS WHERE key = "%s"''' % key)
+        self.commit()

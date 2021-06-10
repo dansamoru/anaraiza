@@ -26,11 +26,23 @@ class Controller:
 
         self.view_url = config['Website']['base_url'] + config['Website']['view_url']
 
-    def book_registration(self, url, name):
-        if self.registrar.book_registration(name, url):
-            self.telegram.write('Зарегистрирован новый элемент 😎: \n' + name + '\n\n' + url, 'prod-main')
+    def book_registration_notifier(self, key, isbn, name, success: bool = True):
+        message = 'Новый элемент: \n' + name + '\n' + (self.view_url + isbn) + '\n\n' + '✅ Найден'
+        if success:
+            message += '\n✅ Зарегистрирован'
         else:
-            self.telegram.write('Ошибка регистрации 🤫: \n' + name + '\n\n' + url, 'prod-dev')
+            message += '\n❌ Зарегистрирован'
+            self.database.remove(key)
+            message += '\n✅ Удалён из базы данных'
+        self.telegram.write(message, 'prod-main')
+
+    def book_registration(self, name, key, isbn):
+        try:
+            success = self.registrar.book_registration(self.view_url + isbn, name)
+        except Exception as exception:
+            self.book_registration_notifier(key, isbn, name, False)
+            raise exception
+        self.book_registration_notifier(key, isbn, name, success)
 
     def update(self, is_first_update):
         website_count = self.website.get_count()
@@ -46,24 +58,21 @@ class Controller:
             for doc in positions:
                 if self.database.is_unique(doc['REC_KEY'], doc['EA_ISBN']):
                     if not is_first_update:
-                        self.telegram.write(
-                            'Найден новый элемент: \n' + doc['TITLE'] + '\n\n' + self.view_url + doc['EA_ISBN'],
-                            'prod-main')
-                        self.book_registration(self.view_url + doc['EA_ISBN'], doc['TITLE'])
+                        self.book_registration(doc['TITLE'], doc['REC_KEY'], doc['EA_ISBN'])
             self.database.commit()
 
     def start(self):
-        is_start = True
+        is_start = False
         while True:
             try:
                 self.update(is_start)
-                if is_start and os.environ.get('DEBUG') == 'True':
-                    self.telegram.write('Module (re)started', tag='prod_dev') 
+                if is_start:
+                    self.telegram.write('Module (re)started', tag='prod-dev')
                 is_start = False
             except Exception as exception:
                 with open('error.txt', 'w') as error_file:
                     error_file.write(traceback.format_exc())
                 self.telegram.write(
                     'Поздравляю! Случилась ошибка 🥰\n\n⚠ : ' + str(exception), 'prod-dev')
-                os.path.join(BASE_PATH, 'start.sh')
+                os.system(os.path.join(BASE_PATH, 'start.sh'))
                 raise exception

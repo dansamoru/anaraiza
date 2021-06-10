@@ -42,6 +42,8 @@ class Registrar:
         response = self.__post_request__('users/login/',
                                          {'user': os.getenv('REMANGA_USERNAME'),
                                           'password': os.getenv('REMANGA_PASSWORD')}).json()
+        if response['content'] == []:
+            raise ConnectionRefusedError(response['msg'])
         self.__token__ = response['content']['access_token']
         self.__user__ = response['content']
 
