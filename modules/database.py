@@ -33,6 +33,7 @@ class Database:
         self.cursor.execute('''DROP TABLE books''')
         self.__create__()
         self.insert_many(data)
+        self.commit()
 
     def count(self) -> int:
         if self.edited:
@@ -44,7 +45,6 @@ class Database:
     def insert_many(self, array):
         for element in array:
             self.__insert__(element[0], element[1])
-        self.commit()
 
     def is_unique(self, key: int, isbn: int) -> bool:
         return self.__insert__(key=key, isbn=isbn)

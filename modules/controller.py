@@ -45,29 +45,53 @@ class Controller:
         self.book_registration_notifier(key, isbn, name, success)
 
     def update(self, is_first_update):
+        step = 100
         website_count = self.website.get_count()
         database_count = self.database.count()
         if database_count == 0 or website_count < database_count:
-            positions = self.website.get_positions(website_count)['response']['docs']
+            start_count = 0
+            len_count = website_count - start_count
+            if len_count > step:
+                len_count = step
             data = []
-            for doc in positions:
-                data.append((doc['REC_KEY'], doc['EA_ISBN']))
+            while start_count + len_count <= website_count:
+                print('Working (' + str(start_count) + '/' + str(website_count) + ')  -  ' + str(
+                    start_count / website_count * 100)[:4:] + '%')
+                positions = self.website.get_positions(rows=len_count, start=start_count)['response']['docs']
+                for doc in positions:
+                    data.append((doc['REC_KEY'], doc['EA_ISBN']))
+                start_count += step
+                len_count = website_count - start_count
+                if len_count > step or len_count < 0:
+                    len_count = step
             self.database.reload(data)
-        elif website_count > database_count:
-            positions = self.website.get_positions(website_count)['response']['docs']
-            for doc in positions:
-                if self.database.is_unique(doc['REC_KEY'], doc['EA_ISBN']):
-                    if not is_first_update:
-                        self.book_registration(doc['TITLE'], doc['REC_KEY'], doc['EA_ISBN'])
+        elif database_count < website_count:
+            start_count = 0
+            len_count = website_count - start_count
+            if len_count > step:
+                len_count = step
+            while start_count + len_count < website_count:
+                positions = self.website.get_positions(rows=len_count, start=start_count)['response']['docs']
+                for doc in positions:
+                    if self.database.is_unique(doc['REC_KEY'], doc['EA_ISBN']):
+                        if not is_first_update:
+                            self.book_registration(doc['TITLE'], doc['REC_KEY'], doc['EA_ISBN'])
+
+                start_count += step
+                len_count = website_count - start_count
+                if len_count > step:
+                    len_count = step
             self.database.commit()
 
     def start(self):
         is_start = False
         while True:
             try:
+                if is_start:
+                    self.telegram.write('Module launched', tag='prod-dev')
                 self.update(is_start)
                 if is_start:
-                    self.telegram.write('Module (re)started', tag='prod-dev')
+                    self.telegram.write('Module started', tag='prod-dev')
                 is_start = False
             except Exception as exception:
                 with open('error.txt', 'w') as error_file:

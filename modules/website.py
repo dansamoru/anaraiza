@@ -18,8 +18,9 @@ class Website:
     def __request__(self, rows: int, start: int = 0, page: int = 1) -> requests.Response:
         fq_date: str = ''
         if self.dynamic_date_search:
-            fq_date = 'PUBLISH_PREDATE : [' + (datetime.date.today() - datetime.timedelta(days=35)).strftime(
-                '%Y/%m/%d') + ' TO ' + datetime.date.today().strftime('%Y/12/31') + ']'
+            # fq_date = 'PUBLISH_PREDATE : [' + (datetime.date.today() - datetime.timedelta(days=35)).strftime(
+            #     '%Y/%m/%d') + ' TO ' + datetime.date.today().strftime('%Y/12/31') + ']'
+            fq_date = 'PUBLISH_PREDATE : [' + '2021/05/01' + ' TO ' + '2021/12/31' + ']'
         data = {
             'wt': 'json',
             'rows': rows,
