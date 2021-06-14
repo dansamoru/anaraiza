@@ -26,11 +26,14 @@ class Database:
             self.edited = True
             return True
 
+    def drop(self):
+        self.cursor.execute('''DROP TABLE books''')
+
     def commit(self):
         self.connection.commit()
 
     def reload(self, data):
-        self.cursor.execute('''DROP TABLE books''')
+        self.drop()
         self.__create__()
         self.insert_many(data)
         self.commit()

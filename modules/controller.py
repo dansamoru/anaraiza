@@ -10,6 +10,8 @@ BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 
 class Controller:
+    STEP = 100
+
     def __init__(self, config):
         self.website = Website(config['Website'],
                                proxy_file_path=config['Proxy']['PROXY_FILE_PATH'])
@@ -25,6 +27,31 @@ class Controller:
         self.registrar = Registrar(config['Remanga'])
 
         self.view_url = config['Website']['base_url'] + config['Website']['view_url']
+
+        self.is_database_filled = False
+
+    def __del__(self):
+        if not self.is_database_filled:
+            self.database.drop()
+
+    def __database_filling__(self, website_count: int):
+        start_count = 0
+        len_count = website_count - start_count
+        if len_count > self.STEP:
+            len_count = self.STEP
+        data = []
+        while start_count + len_count <= website_count:
+            positions = self.website.get_positions(rows=len_count, start=start_count)['response']['docs']
+            for doc in positions:
+                data.append((doc['REC_KEY'], doc['EA_ISBN']))
+            start_count += self.STEP
+            len_count = website_count - start_count
+            if len_count > self.STEP or len_count < 0:
+                len_count = self.STEP
+            if os.getenv('DEBUG') == 'True':
+                print('Filling database... (' + str(start_count) + '/' + str(website_count) + ')  -  ' + str(
+                    start_count / website_count * 100)[:4:] + '%')
+        self.database.reload(data)
 
     def book_registration_notifier(self, key, isbn, name, success: bool = True):
         message = 'Новый элемент: \n' + name + '\n' + (self.view_url + isbn) + '\n\n' + '✅ Найден'
@@ -45,46 +72,31 @@ class Controller:
         self.book_registration_notifier(key, isbn, name, success)
 
     def update(self, is_first_update):
-        step = 100
         website_count = self.website.get_count()
         database_count = self.database.count()
         if database_count == 0 or website_count < database_count:
-            start_count = 0
-            len_count = website_count - start_count
-            if len_count > step:
-                len_count = step
-            data = []
-            while start_count + len_count <= website_count:
-                print('Working (' + str(start_count) + '/' + str(website_count) + ')  -  ' + str(
-                    start_count / website_count * 100)[:4:] + '%')
-                positions = self.website.get_positions(rows=len_count, start=start_count)['response']['docs']
-                for doc in positions:
-                    data.append((doc['REC_KEY'], doc['EA_ISBN']))
-                start_count += step
-                len_count = website_count - start_count
-                if len_count > step or len_count < 0:
-                    len_count = step
-            self.database.reload(data)
+            self.is_database_filled = False
+            self.__database_filling__(website_count)
+            self.is_database_filled = True
         elif database_count < website_count:
             start_count = 0
             len_count = website_count - start_count
-            if len_count > step:
-                len_count = step
+            if len_count > self.STEP:
+                len_count = self.STEP
             while start_count + len_count < website_count:
                 positions = self.website.get_positions(rows=len_count, start=start_count)['response']['docs']
                 for doc in positions:
                     if self.database.is_unique(doc['REC_KEY'], doc['EA_ISBN']):
                         if not is_first_update:
                             self.book_registration(doc['TITLE'], doc['REC_KEY'], doc['EA_ISBN'])
-
-                start_count += step
+                start_count += self.STEP
                 len_count = website_count - start_count
-                if len_count > step:
-                    len_count = step
+                if len_count > self.STEP:
+                    len_count = self.STEP
             self.database.commit()
 
     def start(self):
-        is_start = False
+        is_start = True
         while True:
             try:
                 if is_start:
