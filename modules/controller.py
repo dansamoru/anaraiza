@@ -83,7 +83,7 @@ class Controller:
             len_count = website_count - start_count
             if len_count > self.STEP:
                 len_count = self.STEP
-            while start_count + len_count < website_count:
+            while start_count + len_count <= website_count and len_count >= 0:
                 positions = self.website.get_positions(rows=len_count, start=start_count)['response']['docs']
                 for doc in positions:
                     if self.database.is_unique(doc['REC_KEY'], doc['EA_ISBN']):
