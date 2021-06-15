@@ -1,6 +1,7 @@
 FROM python:3.9
 COPY requirements.txt .
 RUN apt update && apt upgrade -y
+RUN apt install rabbitmq-server && rabbitmq-plugins enable rabbitmq_management
 
 RUN pip install -r requirements.txt
 
