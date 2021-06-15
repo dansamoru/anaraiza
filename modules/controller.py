@@ -6,7 +6,7 @@ from modules.registrar import Registrar
 from modules.telegram import Telegram
 from modules.website import Website
 
-BASE_PATH = os.path.dirname(os.path.abspath(__file__))
+BASE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 class Controller:
