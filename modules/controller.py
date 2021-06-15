@@ -110,5 +110,5 @@ class Controller:
                     error_file.write(traceback.format_exc())
                 self.telegram.write(
                     'Поздравляю! Случилась ошибка 🥰\n\n⚠ : ' + str(exception), 'prod-dev')
-                os.system(os.path.join(BASE_PATH, 'start.sh'))
+                #  os.system(os.path.join(BASE_PATH, 'start.sh'))
                 raise exception

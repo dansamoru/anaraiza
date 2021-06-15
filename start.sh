@@ -1,3 +1,4 @@
 #!/bin/bash
 cd /opt/anaraiza
-screen -dmS parser ./venv/bin/python3 ./main.py
+docker build -t parser .
+docker run -d --restart=always parser
