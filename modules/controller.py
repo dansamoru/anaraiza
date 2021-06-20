@@ -28,7 +28,7 @@ class Controller:
 
         self.view_url = config['Website']['base_url'] + config['Website']['view_url']
 
-        self.is_database_filled = False
+        self.is_database_filled = True
 
     def __del__(self):
         if not self.is_database_filled:

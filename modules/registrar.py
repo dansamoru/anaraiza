@@ -118,7 +118,7 @@ class Registrar:
         else:
             raise ValueError('Ошибка подключения к переводчику')
 
-    def book_registration(self, name, url) -> bool:
+    def book_registration(self, url, name) -> bool:
         name = self.__translate_name__(name, 'ko')
         data = {
             'csrfmiddlewaretoken': self.__get_csrf__(),
