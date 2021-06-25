@@ -69,25 +69,32 @@ class Registrar:
         else:
             raise ValueError('Ошибка подключения к remanga')
 
-    def __add_title__(self, data) -> bool:
+    def __add_title__(self, data, image: str) -> bool:
         headers = {
             'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) '
                           'Chrome/88.0.4324.111 YaBrowser/21.2.1.94 (beta) Yowser/2.5 Safari/537.36',
-            'cookie': 'user=' + str(self.__user__).replace('\'', '\"').replace(' ', '').replace('False',
-                                                                                                'false').replace('True',
-                                                                                                                 'true').replace(
-                'None', 'null'),
+            'cookie': 'user=' +
+                      str(self.__user__).replace('\'',
+                                                 '\"').replace(' ',
+                                                               '').replace('False',
+                                                                           'false').replace('True',
+                                                                                            'true').replace(
+                          'None', 'null'),
         }
-        files = {'cover': open(os.path.join(os.path.dirname(os.path.curdir), 'static', 'plug.jpg'), 'rb')}
+        with open(os.path.join(os.path.dirname(os.path.curdir), 'cache', (image.replace('/', '_')[-20:-1]) + '.jpg'),
+                  'wb+') as download:
+            download.write(requests.get(image + '&filename=th').content)
+        files = {'cover': open(
+            os.path.join(os.path.dirname(os.path.curdir), 'cache', (image.replace('/', '_')[-20:-1]) + '.jpg'), 'rb')}
         with open('registrar.txt', 'a', encoding='utf-8') as file:
             file.write(str(data) + '\n')
         if os.getenv('DEBUG') == 'False':
             response = requests.post('https://remanga.org/panel/add-titles/', headers=headers, data=data, files=files)
             if response.status_code == 401 or response.status_code == 403:
                 self.__authorize__()
-                return self.__add_title__(data)
+                return self.__add_title__(data, image)
             if response.text.find('Спасибо за помощь проекту, ваш запрос отправлен на модерацию', 1000) == -1:
-                return self.__add_title__(data)
+                return self.__add_title__(data, image)
             return response.ok
         else:
             return True
@@ -120,7 +127,7 @@ class Registrar:
         else:
             raise ValueError('Ошибка подключения к переводчику')
 
-    def book_registration(self, url, name) -> bool:
+    def book_registration(self, url, name, image) -> bool:
         name = self.__translate_name__(name, 'ko')
         data = {
             'csrfmiddlewaretoken': self.__get_csrf__(),
@@ -141,4 +148,4 @@ class Registrar:
             'readmanga_link': '',
             'user_message': '',
         }
-        return self.__add_title__(data)
+        return self.__add_title__(data, image)

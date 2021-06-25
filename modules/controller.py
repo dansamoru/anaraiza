@@ -10,8 +10,6 @@ BASE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 class Controller:
-    STEP = 100
-
     def __init__(self, config):
         self.website = Website(config['Website'],
                                proxy_file_path=config['Proxy']['PROXY_FILE_PATH'])
@@ -26,7 +24,8 @@ class Controller:
 
         self.registrar = Registrar(config['Remanga'])
 
-        self.view_url = config['Website']['base_url'] + config['Website']['view_url']
+        self.view_url = config['Website']['view_url']
+        self.image_url = config['Website']['image_url']
 
         self.is_database_filled = True
 
@@ -34,71 +33,52 @@ class Controller:
         if not self.is_database_filled:
             self.database.drop()
 
-    def __database_filling__(self, website_count: int):
-        start_count = 0
-        len_count = website_count - start_count
-        if len_count > self.STEP:
-            len_count = self.STEP
+    def __database_filling__(self):
         data = []
-        while start_count + len_count <= website_count:
-            positions = self.website.get_positions(rows=len_count, start=start_count)['response']['docs']
-            for doc in positions:
-                data.append((doc['REC_KEY'], doc['EA_ISBN']))
-            start_count += self.STEP
-            len_count = website_count - start_count
-            if len_count > self.STEP or len_count < 0:
-                len_count = self.STEP
-            if os.getenv('DEBUG') == 'True':
-                print('Filling database... (' + str(start_count) + '/' + str(website_count) + ')  -  ' + str(
-                    start_count / website_count * 100)[:4:] + '%')
+        positions = self.website.get_positions()['list']
+        for doc in positions:
+            data.append(doc['series_id'])
         self.database.reload(data)
 
-    def book_registration_notifier(self, key, isbn, name, success: bool = True):
-        message = 'Новый элемент: \n' + name + '\n' + (self.view_url + isbn) + '\n\n' + '✅ Найден'
+    def book_registration_notifier(self, title, identifier, success: bool = True):
+        message = 'Новый элемент: \n' + title + '\n' + (self.view_url + str(identifier)) + '\n\n' + '✅ Найден'
         if success:
             message += '\n✅ Зарегистрирован'
         else:
             message += '\n❌ Зарегистрирован'
-            self.database.remove(key)
+            self.database.remove(identifier)
             message += '\n✅ Удалён из базы данных'
         self.telegram.write(message, 'prod-main')
 
-    def book_registration(self, name, key, isbn):
+    def book_registration(self, title: str, identifier: str, image_url: str):
         try:
-            success = self.registrar.book_registration(self.view_url + isbn, name)
+            success = self.registrar.book_registration(self.view_url + str(identifier), title, image_url)
         except Exception as exception:
-            self.book_registration_notifier(key, isbn, name, False)
+            self.book_registration_notifier(title, identifier, False)
             raise exception
-        self.book_registration_notifier(key, isbn, name, success)
+        self.book_registration_notifier(title, identifier, success)
 
     def update(self, is_first_update):
         website_count = self.website.get_count()
         database_count = self.database.count()
         if database_count == 0 or website_count < database_count:
             self.is_database_filled = False
-            self.__database_filling__(website_count)
+            self.__database_filling__()
+            self.database.set_amount(website_count)
             self.is_database_filled = True
         elif database_count < website_count:
-            start_count = 0
-            len_count = website_count - start_count
-            if len_count > self.STEP:
-                len_count = self.STEP
-            while start_count + len_count <= website_count and len_count >= 0:
-                positions = self.website.get_positions(rows=len_count, start=start_count)['response']['docs']
-                for doc in positions:
-                    if self.database.is_unique(doc['REC_KEY'], doc['EA_ISBN']):
-                        if not is_first_update:
-                            self.book_registration(doc['TITLE'], doc['REC_KEY'], doc['EA_ISBN'])
-                start_count += self.STEP
-                len_count = website_count - start_count
-                if len_count > self.STEP:
-                    len_count = self.STEP
+            positions = self.website.get_positions()['list']
+            for doc in positions:
+                if self.database.is_unique(doc['series_id']) and not is_first_update:
+                    self.book_registration(doc['title'], doc['series_id'], self.image_url + doc['image'])
             self.database.commit()
 
     def start(self):
-        is_start = True
+        is_start = False
         while True:
             try:
+                n = 1612
+                self.database.set_amount(n)
                 if is_start:
                     self.telegram.write('Module launched', tag='prod-dev')
                 self.update(is_start)
