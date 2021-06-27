@@ -13,8 +13,9 @@ class Registrar:
         self.api_url = config['api_url']
         self.__token__ = None
         self.__user__ = None
-        with open('registrar.txt', 'w', encoding='utf-8'):
+        with open('registrar.txt', 'w+', encoding='utf-8'):
             pass
+        self.__authorize__()
 
     def __post_request__(self, url, data=None) -> requests.Response:
         headers = {
@@ -139,7 +140,7 @@ class Registrar:
             'categories': '5',
             'genres': '2',
             'publishers': '6579',
-            'status': '4',
+            'status': '1',
             'age_limit': '0',
             'issue_year': '2021',
             'mangachan_link': '',

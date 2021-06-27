@@ -75,6 +75,11 @@ class Controller:
                     self.book_registration(doc['title'], doc['series_id'], self.image_url + doc['image'])
             self.database.commit()
 
+    def clear(self):
+        for file in os.listdir(os.path.join(os.path.dirname(os.path.curdir), 'cache')):
+            if str(file) != '.gitkeep':
+                os.remove(os.path.join(os.path.dirname(os.path.curdir), 'cache', file))
+
     def start(self):
         is_start = True
         last_time = datetime.datetime.now()
@@ -85,6 +90,7 @@ class Controller:
                         self.telegram.write('Module launched', tag='prod-dev')
                     self.update(is_start)
                     last_time = datetime.datetime.now()
+                    self.clear()
                     if is_start:
                         self.telegram.write('Module started', tag='prod-dev')
                     is_start = False
