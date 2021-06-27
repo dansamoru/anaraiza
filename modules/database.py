@@ -53,5 +53,5 @@ class Database:
         return self.__insert__(key=key, isbn=isbn)
 
     def remove(self, key: int):
-        self.cursor.execute('''DELETE FROM BOOKS WHERE key = "%s"''' % key)
+        self.cursor.execute('''DELETE FROM BOOKS WHERE key = "%s"''' % str(key))
         self.commit()
