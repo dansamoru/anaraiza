@@ -1,3 +1,4 @@
+import datetime
 import os
 import traceback
 
@@ -26,6 +27,7 @@ class Controller:
 
         self.view_url = config['Website']['view_url']
         self.image_url = config['Website']['image_url']
+        self.update_time: int = int(config['Controller']['update_time'])
 
         self.is_database_filled = True
 
@@ -74,21 +76,22 @@ class Controller:
             self.database.commit()
 
     def start(self):
-        is_start = False
+        is_start = True
+        last_time = datetime.datetime.now()
         while True:
-            try:
-                n = 1612
-                self.database.set_amount(n)
-                if is_start:
-                    self.telegram.write('Module launched', tag='prod-dev')
-                self.update(is_start)
-                if is_start:
-                    self.telegram.write('Module started', tag='prod-dev')
-                is_start = False
-            except Exception as exception:
-                with open('error.txt', 'w') as error_file:
-                    error_file.write(traceback.format_exc())
-                self.telegram.write(
-                    'Поздравляю! Случилась ошибка 🥰\n\n⚠ : ' + str(exception), 'prod-dev')
-                os.system(os.path.join(BASE_PATH, 'start.sh'))
-                raise exception
+            if datetime.datetime.now() - last_time >= datetime.timedelta(minutes=self.update_time) or is_start:
+                try:
+                    if is_start:
+                        self.telegram.write('Module launched', tag='prod-dev')
+                    self.update(is_start)
+                    last_time = datetime.datetime.now()
+                    if is_start:
+                        self.telegram.write('Module started', tag='prod-dev')
+                    is_start = False
+                except Exception as exception:
+                    with open('error.txt', 'w') as error_file:
+                        error_file.write(traceback.format_exc())
+                    self.telegram.write(
+                        'Поздравляю! Случилась ошибка 🥰\n\n⚠ : ' + str(exception), 'prod-dev')
+                    os.system(os.path.join(BASE_PATH, 'start.sh'))
+                    raise exception
