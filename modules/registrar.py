@@ -87,7 +87,7 @@ class Registrar:
                 self.__authorize__()
                 return self.__add_title__(data)
             if response.text.find('Спасибо за помощь проекту, ваш запрос отправлен на модерацию', 1000) == -1:
-                return self.__add_title__(data)
+                return False
             return response.ok
         else:
             return True

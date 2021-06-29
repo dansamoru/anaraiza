@@ -69,6 +69,8 @@ class Controller:
         except Exception as exception:
             self.book_registration_notifier(key, isbn, name, False)
             raise exception
+        if not success:
+            self.database.remove(key=key)
         self.book_registration_notifier(key, isbn, name, success)
 
     def update(self, is_first_update):
