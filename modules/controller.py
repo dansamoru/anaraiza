@@ -52,12 +52,14 @@ class Controller:
             message += '\n✅ Удалён из базы данных'
         self.telegram.write(message, 'prod-main')
 
-    def book_registration(self, title: str, identifier: str, image_url: str):
+    def book_registration(self, title: str, identifier: int, image_url: str):
         try:
             success = self.registrar.book_registration(self.view_url + str(identifier), title, image_url)
         except Exception as exception:
             self.book_registration_notifier(title, identifier, False)
             raise exception
+        if not success:
+            self.database.remove(identifier=identifier)
         self.book_registration_notifier(title, identifier, success)
 
     def update(self, is_first_update):
@@ -72,7 +74,7 @@ class Controller:
             positions = self.website.get_positions()['list']
             for doc in positions:
                 if self.database.is_unique(doc['series_id']) and not is_first_update:
-                    self.book_registration(doc['title'], doc['series_id'], self.image_url + doc['image'])
+                    self.book_registration(doc['title'], int(doc['series_id']), self.image_url + doc['image'])
             self.database.commit()
 
     def clear(self):
