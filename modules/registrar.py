@@ -86,8 +86,11 @@ class Registrar:
             if response.status_code == 401 or response.status_code == 403:
                 self.__authorize__()
                 return self.__add_title__(data)
-            if response.text.find('Спасибо за помощь проекту, ваш запрос отправлен на модерацию', 1000) == -1:
-                return False
+            if response.text.find('Спасибо за помощь проекту, ваш запрос отправлен на модерацию', 1000, 10000) == -1:
+                if response.text.find('Тайтл с таким') == -1:
+                    return False
+                else:
+                    return True
             return response.ok
         else:
             return True
