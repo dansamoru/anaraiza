@@ -63,19 +63,16 @@ class Controller:
         self.book_registration_notifier(title, identifier, success)
 
     def update(self, is_first_update):
-        website_count = self.website.get_count()
         database_count = self.database.count()
-        if database_count == 0 or website_count < database_count:
+        if database_count == 0:
             self.is_database_filled = False
             self.__database_filling__()
-            self.database.set_amount(website_count)
             self.is_database_filled = True
-        elif database_count < website_count:
-            positions = self.website.get_positions()['list']
-            for doc in positions:
-                if self.database.is_unique(doc['series_id']) and not is_first_update:
-                    self.book_registration(doc['title'], int(doc['series_id']), self.image_url + doc['image'])
-            self.database.commit()
+        positions = self.website.get_positions()['list']
+        for doc in positions:
+            if self.database.is_unique(doc['series_id']) and not is_first_update:
+                self.book_registration(doc['title'], int(doc['series_id']), self.image_url + doc['image'])
+        self.database.commit()
 
     def clear(self):
         for file in os.listdir(os.path.join(os.path.dirname(os.path.curdir), 'cache')):
