@@ -82,11 +82,12 @@ class Registrar:
                                                                                             'true').replace(
                           'None', 'null'),
         }
-        with open(os.path.join(os.path.dirname(os.path.curdir), 'cache', (image.replace('/', '_')[-20:-1]) + '.jpg'),
+        with open(os.path.join(os.path.dirname(os.path.curdir), 'cache', (image.replace('/', '_')[-15:-5]) + '.jpg'),
                   'wb+') as download:
-            download.write(requests.get(image + '&filename=th').content)
+            content = requests.get(image).content
+            download.write(content)
         files = {'cover': open(
-            os.path.join(os.path.dirname(os.path.curdir), 'cache', (image.replace('/', '_')[-20:-1]) + '.jpg'), 'rb')}
+            os.path.join(os.path.dirname(os.path.curdir), 'cache', (image.replace('/', '_')[-15:-5]) + '.jpg'), 'rb')}
         with open('registrar.txt', 'a', encoding='utf-8') as file:
             file.write(str(data) + '\n')
         if os.getenv('DEBUG') == 'False':

@@ -26,7 +26,6 @@ class Controller:
         self.registrar = Registrar(config['Remanga'])
 
         self.view_url = config['Website']['view_url']
-        self.image_url = config['Website']['image_url']
         self.update_time: int = int(config['Controller']['update_time'])
 
         self.is_database_filled = True
@@ -37,9 +36,9 @@ class Controller:
 
     def __database_filling__(self):
         data = []
-        positions = self.website.get_positions()['list']
+        positions = self.website.get_positions()['data']
         for doc in positions:
-            data.append(doc['series_id'])
+            data.append(doc['season_id'])
         self.database.reload(data)
 
     def book_registration_notifier(self, title, identifier, success: bool = True):
@@ -68,10 +67,11 @@ class Controller:
             self.is_database_filled = False
             self.__database_filling__()
             self.is_database_filled = True
-        positions = self.website.get_positions()['list']
-        for doc in positions:
-            if self.database.is_unique(doc['series_id']) and not is_first_update:
-                self.book_registration(doc['title'], int(doc['series_id']), self.image_url + doc['image'])
+        positions = self.website.get_positions()['data']
+        if not is_first_update:
+            for doc in positions:
+                if self.database.is_unique(doc['season_id']):
+                    self.book_registration(doc['title'], int(doc['season_id']), doc['square_cover'])
         self.database.commit()
 
     def clear(self):
@@ -80,10 +80,10 @@ class Controller:
                 os.remove(os.path.join(os.path.dirname(os.path.curdir), 'cache', file))
 
     def start(self):
-        is_start = True
+        is_start = False
         last_time = datetime.datetime.now()
         while True:
-            if datetime.datetime.now() - last_time >= datetime.timedelta(minutes=self.update_time) or is_start:
+            if datetime.datetime.now() - last_time >= datetime.timedelta(seconds=self.update_time) or is_start:
                 try:
                     if is_start:
                         self.telegram.write('Module launched', tag='prod-dev')
