@@ -53,24 +53,28 @@ class Controller:
                     start_count / website_count * 100)[:4:] + '%')
         self.database.reload(data)
 
-    def book_registration_notifier(self, key, isbn, name, success: bool = True):
+    def book_registration_notifier(self, key, isbn, name, success):
         message = 'Новый элемент: \n' + name + '\n' + (self.view_url + isbn) + '\n\n' + '✅ Найден'
-        if success:
+        if success == 1:
             message += '\n✅ Зарегистрирован'
-        else:
+        elif success == 0:
             message += '\n❌ Зарегистрирован'
             self.database.remove(key)
             message += '\n✅ Удалён из базы данных'
+        elif success == -1:
+            message += '\n❌ Зарегистрирован'
+            message += '\n🔱 Неудовлетворительная цена'
         self.telegram.write(message, 'prod-main')
 
-    def book_registration(self, name, key, isbn):
+    def book_registration(self, name, key, isbn, price):
         try:
-            success = self.registrar.book_registration(self.view_url + isbn, name)
+            if price != '':
+                success = -1
+            else:
+                success = 1 if self.registrar.book_registration(self.view_url + isbn, name) else 0
         except Exception as exception:
             self.book_registration_notifier(key, isbn, name, False)
             raise exception
-        if not success:
-            self.database.remove(key=key)
         self.book_registration_notifier(key, isbn, name, success)
 
     def update(self, is_first_update):
@@ -90,7 +94,7 @@ class Controller:
                 for doc in positions:
                     if self.database.is_unique(doc['REC_KEY'], doc['EA_ISBN']):
                         if not is_first_update:
-                            self.book_registration(doc['TITLE'], doc['REC_KEY'], doc['EA_ISBN'])
+                            self.book_registration(doc['TITLE'], doc['REC_KEY'], doc['EA_ISBN'], doc['REAL_PRICE'])
                 start_count += self.STEP
                 len_count = website_count - start_count
                 if len_count > self.STEP:
