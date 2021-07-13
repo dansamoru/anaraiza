@@ -1,5 +1,4 @@
 import time
-import datetime
 from json.decoder import JSONDecodeError
 
 import requests
@@ -27,9 +26,8 @@ class Website:
             'start': start,
             'page': page,
             'tSrch_total': self.search_request,
-            'fq_select': 'tSrc_total',
-            'fq': fq_date,
-            'detailSearchYn': 'Y',
+            'q': self.search_request,
+            'detailSearchYn': 'N',
         }
         while True:
             error_time = None
@@ -45,7 +43,7 @@ class Website:
                 if error_time is None:
                     error_time = time.time()
                 if error_time is not None:
-                    if error_time - time.time() >= 300:
+                    if error_time - time.time() >= 3:
                         self.proxy.next()
 
     def get_positions(self, rows: int = None, start: int = 0, page: int = 1):
