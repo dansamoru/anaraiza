@@ -95,7 +95,9 @@ class Controller:
             #     if len_count > self.STEP:
             #         len_count = self.STEP
             #     while start_count + len_count <= website_count and len_count >= 0:
-        positions = self.website.get_positions(rows=self.website.get_count() - self.titles_count)['response']['docs']
+        new_titles_count = self.website.get_count()
+        positions = self.website.get_positions(rows=new_titles_count - self.titles_count)['response']['docs']
+        self.titles_count = new_titles_count
         for doc in positions:
             # if self.database.is_unique(doc['REC_KEY'], doc['EA_ISBN']):
             self.book_registration(doc['TITLE'], doc['EA_ISBN'], doc['SUBJECT'])
