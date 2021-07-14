@@ -55,25 +55,25 @@ class Controller:
     #                 start_count / website_count * 100)[:4:] + '%')
     #     self.database.reload(data)
 
-    def book_registration_notifier(self, isbn, name, success):
+    def book_registration_notifier(self, isbn, name, success: bool):
         message = '🤯 Новый элемент: \n' + name + '\n' + (self.view_url + isbn) + '\n\n' + '✅ Найден'
-        if success == 1:
+        if success:
             message += '\n✅ Зарегистрирован'
-        elif success == 0:
+        else:
             message += '\n❌ Зарегистрирован'
             # self.database.remove(key)
             # message += '\n✅ Удалён из базы данных'
-        elif success == -1:
-            message += '\n❌ Зарегистрирован'
-            message += '\n🔱 Неудовлетворительный тип'
+        # elif success == -1:
+        #     message += '\n❌ Зарегистрирован'
+        #     message += '\n🔱 Неудовлетворительный тип'
         self.telegram.write(message, 'prod-main')
 
-    def book_registration(self, name, isbn, subject):
+    def book_registration(self, name, isbn):
         try:
-            if subject != '6':
-                success = -1
-            else:
-                success = 1 if self.registrar.book_registration(self.view_url + isbn, name) else 0
+            # if subject != '6':
+            #     success = -1
+            # else:
+            success = self.registrar.book_registration(self.view_url + isbn, name)
         except Exception as exception:
             self.book_registration_notifier(isbn, name, False)
             raise exception
@@ -82,8 +82,9 @@ class Controller:
         self.book_registration_notifier(isbn, name, success)
 
     def update(self):
+        new_titles_count = self.website.get_count()
         if self.titles_count is None:
-            self.titles_count = self.website.get_count()
+            self.titles_count = new_titles_count
             # database_count = self.database.count()
             # if database_count == 0 or website_count < database_count:
             #     self.is_database_filled = False
@@ -95,12 +96,11 @@ class Controller:
             #     if len_count > self.STEP:
             #         len_count = self.STEP
             #     while start_count + len_count <= website_count and len_count >= 0:
-        new_titles_count = self.website.get_count()
         positions = self.website.get_positions(rows=new_titles_count - self.titles_count)['response']['docs']
         self.titles_count = new_titles_count
         for doc in positions:
             # if self.database.is_unique(doc['REC_KEY'], doc['EA_ISBN']):
-            self.book_registration(doc['TITLE'], doc['EA_ISBN'], doc['SUBJECT'])
+            self.book_registration(doc['TITLE'], doc['EA_ISBN'])
         #     start_count += self.STEP
         #     len_count = website_count - start_count
         #     if len_count > self.STEP:
@@ -109,6 +109,7 @@ class Controller:
 
     def start(self):
         # is_start = True
+        self.titles_count = 153795
         while True:
             try:
                 if self.titles_count is None:
