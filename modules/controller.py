@@ -109,7 +109,7 @@ class Controller:
 
     def start(self):
         # is_start = True
-        self.titles_count = 153795
+        # self.titles_count = 153795
         while True:
             try:
                 if self.titles_count is None:
