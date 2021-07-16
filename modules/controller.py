@@ -125,7 +125,7 @@ class Controller:
                 if len(self.titles) == 0:
                     self.telegram.write('Module launched', tag='prod-dev')
                 self.update()
-                self.titles.remove(228378105)
+                # self.titles.remove(228378105)
                 # if is_start:
                 #     self.telegram.write('Module started', tag='prod-dev')
                 # is_start = False
