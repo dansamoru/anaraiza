@@ -9,7 +9,7 @@ BASE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 class Controller:
-    # STEP = 100
+    STEP = 20
 
     def __init__(self, config):
         self.website = Website(config['Website'],
@@ -27,7 +27,8 @@ class Controller:
 
         self.view_url = config['Website']['base_url'] + config['Website']['view_url']
 
-        self.titles_count = None
+        # self.titles_count = None
+        self.titles = []
 
         # self.is_database_filled = True
 
@@ -36,24 +37,27 @@ class Controller:
     #     if not self.is_database_filled:
     #         self.database.drop()
 
-    # def __database_filling__(self, website_count: int):
-    #     start_count = 0
-    #     len_count = website_count - start_count
-    #     if len_count > self.STEP:
-    #         len_count = self.STEP
-    #     data = []
-    #     while start_count + len_count <= website_count:
-    #         positions = self.website.get_positions(rows=len_count, start=start_count)['response']['docs']
-    #         for doc in positions:
-    #             data.append((doc['REC_KEY'], doc['EA_ISBN']))
-    #         start_count += self.STEP
-    #         len_count = website_count - start_count
-    #         if len_count > self.STEP or len_count < 0:
-    #             len_count = self.STEP
-    #         if os.getenv('DEBUG') == 'True':
-    #             print('Filling database... (' + str(start_count) + '/' + str(website_count) + ')  -  ' + str(
-    #                 start_count / website_count * 100)[:4:] + '%')
-    #     self.database.reload(data)
+    def __database_filling__(self, website_count: int):
+        step = 500
+        start_count = 0
+        len_count = website_count - start_count
+        if len_count > step:
+            len_count = step
+        # data = []
+
+        while start_count + len_count <= website_count:
+            positions = self.website.get_positions(rows=len_count, start=start_count)['response']['docs']
+            for doc in positions:
+                self.titles.append(int(doc['REC_KEY']))
+            start_count += step
+            len_count = website_count - start_count
+            if len_count > step or len_count < 0:
+                len_count = step
+            if os.getenv('DEBUG') == 'True':
+                print('Filling database... (' + str(start_count) + '/' + str(website_count) + ')  -  ' + str(
+                    start_count / website_count * 100)[:4:] + '%')
+
+        #     self.database.reload(data)
 
     def book_registration_notifier(self, isbn, name, success: bool):
         message = '🤯 Новый элемент: \n' + name + '\n' + (self.view_url + isbn) + '\n\n' + '✅ Найден'
@@ -68,12 +72,13 @@ class Controller:
         #     message += '\n🔱 Неудовлетворительный тип'
         self.telegram.write(message, 'prod-main')
 
-    def book_registration(self, name, isbn):
+    def book_registration(self, name, isbn, key):
         try:
             # if subject != '6':
             #     success = -1
             # else:
             success = self.registrar.book_registration(self.view_url + isbn, name)
+            self.titles.append(key)
         except Exception as exception:
             self.book_registration_notifier(isbn, name, False)
             raise exception
@@ -82,29 +87,34 @@ class Controller:
         self.book_registration_notifier(isbn, name, success)
 
     def update(self):
-        new_titles_count = self.website.get_count()
-        if self.titles_count is None:
-            self.titles_count = new_titles_count
-            # database_count = self.database.count()
-            # if database_count == 0 or website_count < database_count:
-            #     self.is_database_filled = False
-            #     self.__database_filling__(website_count)
-            #     self.is_database_filled = True
-            # elif database_count < website_count:
-            #     start_count = 0
-            #     len_count = website_count - start_count
-            #     if len_count > self.STEP:
-            #         len_count = self.STEP
-            #     while start_count + len_count <= website_count and len_count >= 0:
-        positions = self.website.get_positions(rows=new_titles_count - self.titles_count)['response']['docs']
-        self.titles_count = new_titles_count
-        for doc in positions:
-            # if self.database.is_unique(doc['REC_KEY'], doc['EA_ISBN']):
-            self.book_registration(doc['TITLE'], doc['EA_ISBN'])
-        #     start_count += self.STEP
-        #     len_count = website_count - start_count
-        #     if len_count > self.STEP:
-        #         len_count = self.STEP
+        # new_titles_count = self.website.get_count()
+        # if self.titles_count is None:
+        #     self.titles_count = new_titles_count
+        # database_count = self.database.count()
+        # if database_count == 0 or website_count < database_count:
+        #     self.is_database_filled = False
+        #     self.__database_filling__(website_count)
+        #     self.is_database_filled = True
+        # elif database_count < website_count:
+        website_count = self.website.get_count()
+        if len(self.titles) == 0:
+            self.__database_filling__(website_count)
+        elif website_count > len(self.titles):
+            start_count = 0
+            len_count = website_count - start_count
+            if len_count > self.STEP:
+                len_count = self.STEP
+            while start_count + len_count <= website_count and len_count >= 0 and len(self.titles) < website_count:
+                positions = self.website.get_positions(len_count, start_count)['response']['docs']
+                # self.titles_count = new_titles_count
+                for doc in positions:
+                    # if self.database.is_unique(doc['REC_KEY'], doc['EA_ISBN']):
+                    if int(doc['REC_KEY']) not in self.titles:
+                        self.book_registration(doc['TITLE'], doc['EA_ISBN'], doc['REC_KEY'])
+                start_count += self.STEP
+                len_count = website_count - start_count
+                if len_count > self.STEP:
+                    len_count = self.STEP
         # self.database.commit()
 
     def start(self):
@@ -112,9 +122,10 @@ class Controller:
         # self.titles_count = 153795
         while True:
             try:
-                if self.titles_count is None:
+                if len(self.titles) == 0:
                     self.telegram.write('Module launched', tag='prod-dev')
                 self.update()
+                self.titles.remove(228378105)
                 # if is_start:
                 #     self.telegram.write('Module started', tag='prod-dev')
                 # is_start = False
