@@ -1,3 +1,4 @@
+import datetime
 import json
 import os
 import sys
@@ -13,8 +14,10 @@ class Registrar:
         self.api_url = config['api_url']
         self.__token__ = None
         self.__user__ = None
+        self.keys = []
         with open('registrar.txt', 'w', encoding='utf-8'):
             pass
+        self.__get_csrf__()
 
     def __post_request__(self, url, data=None) -> requests.Response:
         headers = {
@@ -42,7 +45,7 @@ class Registrar:
         response = self.__post_request__('users/login/',
                                          {'user': os.getenv('REMANGA_USERNAME'),
                                           'password': os.getenv('REMANGA_PASSWORD')}).json()
-        if response['content'] == []:
+        if not response['content']:
             raise ConnectionRefusedError(response['msg'])
         self.__token__ = response['content']['access_token']
         self.__user__ = response['content']
@@ -50,24 +53,32 @@ class Registrar:
     def __get_csrf__(self):
         if self.__user__ is None:
             self.__authorize__()
-        headers = {
-            'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) '
-                          'Chrome/88.0.4324.111 YaBrowser/21.2.1.94 (beta) Yowser/2.5 Safari/537.36',
-            'cookie': 'user=' + str(self.__user__).replace('\'', '\"').replace(' ', '').replace('False',
-                                                                                                'false').replace('True',
-                                                                                                                 'true').replace(
-                'None', 'null'),
-        }
-        response: requests.Response = requests.get('https://remanga.org/panel/add-titles/', headers=headers)
-        if response.status_code == 401 or response.status_code == 403:
-            self.__authorize__()
             return self.__get_csrf__()
-        if response.ok:
-            soup = BeautifulSoup(response.text, 'html.parser')
-            csrf_token = soup.find('input', attrs={'name': 'csrfmiddlewaretoken'})['value']
-            return csrf_token
-        else:
-            raise ValueError('Ошибка подключения к remanga')
+        elif len(self.keys) > 0:
+            return self.keys.pop()
+        elif len(self.keys) == 0:
+            headers = {
+                'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                              'Chrome/88.0.4324.111 YaBrowser/21.2.1.94 (beta) Yowser/2.5 Safari/537.36',
+                'cookie': 'user=' + str(self.__user__).replace('\'', '\"').replace(' ', '').replace('False',
+                                                                                                    'false').replace(
+                    'True',
+                    'true').replace(
+                    'None', 'null'),
+            }
+            for i in range(50):
+                response: requests.Response = requests.get('https://remanga.org/panel/add-titles/', headers=headers)
+                if response.status_code == 401 or response.status_code == 403:
+                    self.__authorize__()
+                    return self.__get_csrf__()
+                if response.ok:
+                    soup = BeautifulSoup(response.text, 'html.parser')
+                    csrf_token = soup.find('input', attrs={'name': 'csrfmiddlewaretoken'})['value']
+                    # print('c:', datetime.datetime.now())
+                    self.keys.append(csrf_token)
+                else:
+                    raise ValueError('Ошибка подключения к remanga')
+            return self.__get_csrf__()
 
     def __add_title__(self, data) -> bool:
         headers = {

@@ -1,5 +1,8 @@
+import datetime
 import os
+import time
 import traceback
+from threading import Thread
 
 from modules.registrar import Registrar
 from modules.telegram import Telegram
@@ -9,7 +12,7 @@ BASE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 class Controller:
-    STEP = 20
+    STEP = 5
 
     def __init__(self, config):
         self.website = Website(config['Website'],
@@ -110,7 +113,9 @@ class Controller:
                 for doc in positions:
                     # if self.database.is_unique(doc['REC_KEY'], doc['EA_ISBN']):
                     if int(doc['REC_KEY']) not in self.titles:
-                        self.book_registration(doc['TITLE'], doc['EA_ISBN'], doc['REC_KEY'])
+                        th = Thread(target=self.book_registration, args=(doc['TITLE'], doc['EA_ISBN'], doc['REC_KEY']))
+                        th.start()
+                        # self.book_registration(doc['TITLE'], doc['EA_ISBN'], doc['REC_KEY'])
                 start_count += self.STEP
                 len_count = website_count - start_count
                 if len_count > self.STEP:
@@ -120,19 +125,20 @@ class Controller:
     def start(self):
         # is_start = True
         # self.titles_count = 153795
-        while True:
-            try:
-                if len(self.titles) == 0:
-                    self.telegram.write('Module launched', tag='prod-dev')
+        try:
+            self.update()
+            self.telegram.write('Module launched', tag='prod-dev')
+            while True:
                 self.update()
+
                 # self.titles.remove(228378105)
                 # if is_start:
                 #     self.telegram.write('Module started', tag='prod-dev')
                 # is_start = False
-            except Exception as exception:
-                with open('error.txt', 'w') as error_file:
-                    error_file.write(traceback.format_exc())
-                self.telegram.write(
-                    'Поздравляю! Случилась ошибка 🥰\n\n⚠ : ' + str(exception), 'prod-dev')
-                os.system(os.path.join(BASE_PATH, 'start.sh'))
-                raise exception
+        except Exception as exception:
+            with open('error.txt', 'w') as error_file:
+                error_file.write(traceback.format_exc())
+            self.telegram.write(
+                'Поздравляю! Случилась ошибка 🥰\n\n⚠ : ' + str(exception), 'prod-dev')
+            os.system(os.path.join(BASE_PATH, 'start.sh'))
+            raise exception

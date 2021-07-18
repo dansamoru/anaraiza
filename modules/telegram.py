@@ -11,6 +11,7 @@ class Telegram:
         self.chat_id = chat_id
 
     def write(self, text, tag='debug-all'):
+        return
         if os.environ.get('DEBUG') == 'True':
             tag = 'debug-all'
         data = {
