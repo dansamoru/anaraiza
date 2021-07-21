@@ -1,6 +1,5 @@
 import datetime
 import os
-import time
 import traceback
 from threading import Thread
 
@@ -131,7 +130,8 @@ class Controller:
             while True:
                 self.update()
 
-                # self.titles.remove(228378105)
+                if datetime.datetime.now().hour == 0:
+                    raise Exception('Reload')
                 # if is_start:
                 #     self.telegram.write('Module started', tag='prod-dev')
                 # is_start = False
