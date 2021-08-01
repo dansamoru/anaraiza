@@ -1,4 +1,3 @@
-import datetime
 import json
 import os
 import sys
@@ -66,7 +65,7 @@ class Registrar:
                     'true').replace(
                     'None', 'null'),
             }
-            for i in range(50):
+            for i in range(15):
                 response: requests.Response = requests.get('https://remanga.org/panel/add-titles/', headers=headers)
                 if response.status_code == 401 or response.status_code == 403:
                     self.__authorize__()
@@ -84,10 +83,12 @@ class Registrar:
         headers = {
             'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) '
                           'Chrome/88.0.4324.111 YaBrowser/21.2.1.94 (beta) Yowser/2.5 Safari/537.36',
-            'cookie': 'user=' + str(self.__user__).replace('\'', '\"').replace(' ', '').replace('False',
-                                                                                                'false').replace('True',
-                                                                                                                 'true').replace(
-                'None', 'null'),
+            'cookie': 'user=' +
+                      str(self.__user__).replace('\'',
+                                                 '\"').replace(' ', '').replace('False',
+                                                                                'false').replace('True',
+                                                                                                 'true').replace(
+                          'None', 'null'),
         }
         files = {'cover': open(os.path.join(os.path.dirname(os.path.curdir), 'static', 'plug.jpg'), 'rb')}
         with open('registrar.txt', 'a', encoding='utf-8') as file:

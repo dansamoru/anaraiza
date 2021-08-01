@@ -130,7 +130,7 @@ class Controller:
             while True:
                 self.update()
 
-                if datetime.datetime.now().hour == 0:
+                if datetime.datetime.now().time().strftime('hhmm') == datetime.time(hour=0, minute=0).strftime('hhmm'):
                     raise Exception('Reload')
                 # if is_start:
                 #     self.telegram.write('Module started', tag='prod-dev')
