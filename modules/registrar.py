@@ -139,7 +139,7 @@ class Registrar:
         name = self.__translate_name__(name, 'ko')
         data = {
             'csrfmiddlewaretoken': self.__get_csrf__(),
-            'en_name': self.__translate_name__(name, 'en'),
+            'en_name': '{A} ' + self.__translate_name__(name, 'en'),
             'rus_name': self.__translate_name__(name, 'ru'),
             'another_name': name,
             'description': '',

@@ -1,4 +1,3 @@
-import datetime
 import os
 import traceback
 from threading import Thread
@@ -11,7 +10,7 @@ BASE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 class Controller:
-    STEP = 5
+    STEP = 20
 
     def __init__(self, config):
         self.website = Website(config['Website'],
@@ -129,9 +128,7 @@ class Controller:
             self.telegram.write('Module launched', tag='prod-dev')
             while True:
                 self.update()
-
-                if datetime.datetime.now().time().strftime('hhmm') == datetime.time(hour=0, minute=0).strftime('hhmm'):
-                    raise Exception('Reload')
+                # self.titles.remove(228378105)
                 # if is_start:
                 #     self.telegram.write('Module started', tag='prod-dev')
                 # is_start = False
